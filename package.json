@@ -12,10 +12,10 @@
   },
   "keywords": [
     "hubot",
-    "game",
+    "hubot-scripts",
     "loaded",
     "questions",
-    "slack"
+    "game"
   ],
   "author": {
     "name": "Perry Goy",
