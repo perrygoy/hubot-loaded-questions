@@ -9,8 +9,8 @@ Loosely based on the hit board game by Freshly Completed, http://freshlycomplete
 
 A typical game of Loaded Questions follows these steps:
 * Someone types `!loadquestion` in the Loaded Questions room.
-```
-hubot APP *NEW ROUND STARTED!!!*
+```markdown
+[hubot APP] *NEW ROUND STARTED!!!*
 
 The current question is: *"What protest march might somebody spot you at?"*
 You can submit your own answer by sending me a private message beginning with `submit answer`, followed by your answer
@@ -18,11 +18,11 @@ You can submit your own answer by sending me a private message beginning with `s
 * Anyone who wants to play sends a PM to Hubot in the format `submit answer HERE IS WHERE MY ANSWER GOES!`
 * Once enough people have submitted answers (the default number is 5 people, see [Configuration](#configuration) below), a countdown begins (the default is 5 minutes—again, see [Configuration](#configuration)!) to end the round. Or, someone can say `!endquestion` to end the round early.
 * After the round is ended, Hubot will say:
-```
-*ROUND ENDED!!!* (due to timeout)
+```markdown
+[hubot APP] *ROUND ENDED!!!* (due to timeout)
 
-There were 5 answers submitted for _"Fill in the blank: When I dance, I look like ___."_:
->*1.* kjones on the runway
+There were 5 answers submitted for _"Fill in the blank: When I dance, I look like `___`."_:
+> *1.* user1 on the runway
 > *2.* the funkiest chicken
 > *3.* Wacky Waving Inflatable Arm Flailing Tubeman
 > *4.* like that noodle ribbon dancer with the minion on his belt
@@ -48,7 +48,7 @@ Loaded Questions has these configurable values:
 * `HUBOT_LOADED_QUESTIONS_TIMEOUT` - how many minutes to wait during the countdown before the round ends. Default is 5.
 
 Loaded Questions also comes with a default set of 275 questions, and more can be added if your friends have some good ones by creating a `loaded_questions.json` file in the `res/` directory at the root of your Hubot project. Here's an example of what that might look like:
-```
+```json
 // hubot/res/loaded_questions.json
 [
     "Ding dong! Who's there?",
