@@ -1,0 +1,90 @@
+hubot-loaded-questions
+======================
+
+Play Loaded Questions, the game where guessing the answers gets you in just as much trouble as giving your own.
+
+The Game
+--------
+Loosely based on the hit board game by Freshly Completed, http://freshlycompleted.blogspot.com/2013/11/loaded-questions-free-printable-game.html
+
+A typical game of Loaded Questions follows these steps:
+* Someone types `!loadquestion` in the Loaded Questions room.
+```
+hubot APP *NEW ROUND STARTED!!!*
+
+The current question is: *"What protest march might somebody spot you at?"*
+You can submit your own answer by sending me a private message beginning with `submit answer`, followed by your answer
+```
+* Anyone who wants to play sends a PM to Hubot in the format `submit answer HERE IS WHERE MY ANSWER GOES!`
+* Once enough people have submitted answers (the default number is 5 people, see [Configuration](#configuration) below), a countdown begins (the default is 5 minutes—again, see [Configuration](#configuration)!) to end the round. Or, someone can say `!endquestion` to end the round early.
+* After the round is ended, Hubot will say:
+```
+*ROUND ENDED!!!* (due to timeout)
+
+There were 5 answers submitted for _"Fill in the blank: When I dance, I look like ___."_:
+>*1.* kjones on the runway
+> *2.* the funkiest chicken
+> *3.* Wacky Waving Inflatable Arm Flailing Tubeman
+> *4.* like that noodle ribbon dancer with the minion on his belt
+> *5.* I'm trying too hard.
+
+
+Players whose answers haven't been guessed: *user1*, *user2*, *user3*, *user4*, *user5*.
+To guess who submitted an answer, say `!guessanswer [number] [username]`.
+```
+* Users can then optionally guess who submitted each answer by saying `!guessanswer` or `!ga` followed by their guess.
+* As each answer is guessed, Hubot will let you know if you guessed correctly or incorrectly. You can re-print the answers list to see which answers have been guessed so far (or because the list has scrolled way off the screen) by saying `!printanswers`.
+* Once all the answers are guessed, Hubot will wait patiently for the next round!
+
+After playing for a while, you can see stats for the game by saying `!lqstats`, or stats for individual players by saying `!lqstats [username]`.
+
+API
+---
+## Configuration
+Loaded Questions has these configurable values:
+* `HUBOT_LOADED_QUESTIONS_ROOM` - which channel name or ID to post messages to (this game can be a little spammy, so it's best to have a dedicated room). Default is #random.
+* `HUBOT_LOADED_QUESTIONS_QUORUM` - how many answers to wait for before triggering a countdown to end the round. Default is 5.
+* `HUBOT_LOADED_QUESTIONS_SKIPNUM` - how many users must agree to skip a question before it is skipped. Default is 2.
+* `HUBOT_LOADED_QUESTIONS_TIMEOUT` - how many minutes to wait during the countdown before the round ends. Default is 5.
+
+Loaded Questions also comes with a default set of 275 questions, and more can be added if your friends have some good ones by creating a `loaded_questions.json` file in the `res/` directory at the root of your Hubot project. Here's an example of what that might look like:
+```
+// hubot/res/loaded_questions.json
+[
+    "Ding dong! Who's there?",
+    "Doctors hate him! What did he do?",
+    "Excuse me, how do I get to the nearest gas station?"
+]
+```
+
+Loaded Questions will find those extra questions and add 'em to the mix.
+
+## Commands
+* `!loadquestion` - (public only) starts a new question, if there isn't one currently.
+* `!printquestion` - (public or pm) prints the current question.
+* `!skipquestion` - (public only) votes to skips the current question and load a new one.
+* `!endquestion` - (public only) ends the round of questioning and displays the answers.
+* `!printanswers` - (public or pm) prints the answers that were given during the round.
+* `!guessanswer [number] [user]` - (public only) guess that answer `number` was submitted by `user`. You can shortcut this command with `!ga [number] [user]`.
+* `submit answer [answer]` - (pm only) submits your answer to the question.
+* `!lqstats [username]` - (public or pm) shows some stats about the game. Optionally include a username to see stats for that specific user.
+
+Uses hubot brain to keep track of the game state and some stats.
+
+## Add it to your hubot!
+
+Run the following command
+
+    $ npm install hubot-loaded-questions --save
+
+Then add `hubot-loaded-questions` to the `external-scripts.json` file (you may need to create this file).
+
+    ["hubot-loaded-questions"]
+
+
+## Issues
+If you find a bug, please let me know about it at https://github.com/perrygoy/hubot-loaded-questions/issues.
+
+Thanks
+------
+I've had a ton of fun creating this module and playing it with my friends, and i want it to be a great time for everyone. Thanks for taking the time to read this README, and i hope you have a great time playing Loaded Questions with your friends!

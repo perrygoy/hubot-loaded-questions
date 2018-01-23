@@ -1,0 +1,29 @@
+{
+  "name": "hubot-loaded-questions",
+  "version": "1.0.0",
+  "description": "Play Loaded Questions, the game where guessing the answers gets you in just as much trouble as giving your own.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/perrygoy/hubot-loaded-questions.git"
+  },
+  "keywords": [
+    "hubot",
+    "game",
+    "loaded",
+    "questions",
+    "slack"
+  ],
+  "author": {
+    "name": "Perry Goy",
+    "email": "perry.goy@gmail.com"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/perrygoy/hubot-loaded-questions/issues"
+  },
+  "homepage": "https://github.com/perrygoy/hubot-loaded-questions#readme"
+}
