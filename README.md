@@ -3,8 +3,7 @@ hubot-loaded-questions
 
 Play Loaded Questions, the game where guessing the answers gets you in just as much trouble as giving your own.
 
-The Game
---------
+## The Game
 Loosely based on the hit board game by Freshly Completed, http://freshlycompleted.blogspot.com/2013/11/loaded-questions-free-printable-game.html
 
 A typical game of Loaded Questions follows these steps:
@@ -38,8 +37,6 @@ To guess who submitted an answer, say `!guessanswer [number] [username]`.
 
 After playing for a while, you can see stats for the game by saying `!lqstats`, or stats for individual players by saying `!lqstats [username]`.
 
-API
----
 ## Configuration
 Loaded Questions has these configurable values:
 * `HUBOT_LOADED_QUESTIONS_ROOM` - which channel name or ID to post messages to (this game can be a little spammy, so it's best to have a dedicated room). Default is #random.
@@ -83,8 +80,8 @@ Then add `hubot-loaded-questions` to the `external-scripts.json` file (you may n
 
 
 ## Issues
-If you find a bug, please let me know about it at https://github.com/perrygoy/hubot-loaded-questions/issues.
+If you find a bug, please let me know about it at https://github.com/perrygoy/hubot-loaded-questions/issues. This module was exclusively tested on Slack, so i'm not sure how it behaves on other chat clients.
 
 Thanks
 ------
-I've had a ton of fun creating this module and playing it with my friends, and i want it to be a great time for everyone. Thanks for taking the time to read this README, and i hope you have a great time playing Loaded Questions with your friends!
+I've had a ton of fun creating this module and playing it with my friends, and i want it to be a great time for everyone. Thanks for taking the time to read this README, and i hope you have a great time playing Loaded Questions!
