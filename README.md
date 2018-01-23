@@ -11,7 +11,7 @@ A typical game of Loaded Questions follows these steps:
 ```asciidoc
 [hubot APP] *NEW ROUND STARTED!!!*
 
-The current question is: *"What protest march might somebody spot you at?"*
+The current question is: *"If you could add one feature to your cell phone, what would it be?"*
 You can submit your own answer by sending me a private message beginning with `submit answer`, followed by your answer
 ```
 * Anyone who wants to play sends a PM to Hubot in the format `submit answer HERE IS WHERE MY ANSWER GOES!`
@@ -20,15 +20,16 @@ You can submit your own answer by sending me a private message beginning with `s
 ```asciidoc
 [hubot APP] *ROUND ENDED!!!* (due to timeout)
 
-There were 5 answers submitted for _"Fill in the blank: When I dance, I look like `___`."_:
-> *1.* user1 on the runway
-> *2.* the funkiest chicken
-> *3.* Wacky Waving Inflatable Arm Flailing Tubeman
-> *4.* like that noodle ribbon dancer with the minion on his belt
-> *5.* I'm trying too hard.
+There were 6 answers submitted for _"If you could add one feature to your cell phone, what would it be?"_:
+> *1.* a pez dispenser
+> *2.* send schedule text messages to my parents
+> *3.* A "receive call" feature would be sweet. :(
+> *4.* lead into gold
+> *5.* a spray bottle
+> *6.* curing diseases for a nominal fee (paid directly to me)
 
 
-Players whose answers haven't been guessed: *user1*, *user2*, *user3*, *user4*, *user5*.
+Players whose answers haven't been guessed: *user2*, *user1*, *user6*, *user4*, *user5*, *user3*.
 To guess who submitted an answer, say `!guessanswer [number] [username]`.
 ```
 * Users can then optionally guess who submitted each answer by saying `!guessanswer` or `!ga` followed by their guess.
