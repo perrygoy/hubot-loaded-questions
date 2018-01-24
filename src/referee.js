@@ -51,6 +51,9 @@ module.exports = function(robot) {
   }
 
   this.orderedAnswers = function() {
+    if (Object.keys(Game['orderedAnswers']).length == 0) {
+      generateOrderedAnswers();
+    }
     return Object.assign({}, Game['orderedAnswers']);;
   }
 
@@ -134,6 +137,26 @@ module.exports = function(robot) {
   }
 
   /**
+   * generates ordered answers list
+   */
+  this.generateOrderedAnswers = function() {
+    let users = [];
+    for (let user of Object.keys(Game['answers'])) {
+      const obj = Game['answers'][user];
+      obj['user'] = user;
+      obj['guessed'] = false;
+      users.push(obj);
+    }
+
+    users = shuffle(users);
+    for (let i = 1; i <= users.length; i++) {
+      Game['orderedAnswers'][i] = users[i - 1];
+    }
+
+    saveGame();
+  }
+
+  /**
    * gets the number of answers that have been guessed correctly
    *
    * @return integer
@@ -176,19 +199,7 @@ module.exports = function(robot) {
     Game['curQuestion'] = '';
     Game['questionTimestamp'] = null;
 
-    let users = [];
-    for (let user of Object.keys(Game['answers'])) {
-      const obj = Game['answers'][user];
-      obj['user'] = user;
-      obj['guessed'] = false;
-      users.push(obj);
-    }
-
-    users = shuffle(users);
-    for (let i = 1; i <= users.length; i++) {
-      Game['orderedAnswers'][i] = users[i - 1];
-    }
-
+    generateOrderedAnswers();
     saveGame();
   }
 
