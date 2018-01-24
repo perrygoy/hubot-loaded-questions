@@ -216,7 +216,7 @@ module.exports = function(robot) {
       const number = 1;
       const orderedAnswers = Referee.orderedAnswers();
 
-      for (let answerNum of orderedAnswers) {
+      for (let answerNum of Object.keys(orderedAnswers)) {
         answersMessage += `> *${answerNum}.* ${orderedAnswers[answerNum]['answer']}`;
 
         if (orderedAnswers[answerNum]['guessed']) {
