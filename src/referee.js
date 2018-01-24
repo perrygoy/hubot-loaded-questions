@@ -85,11 +85,9 @@ module.exports = function(robot) {
     robot.logger.info("Loaded Questions: " + (questions.length - Game['recentQuestions'].length) + " new questions remaining.");
 
     const nonAskedQs = questions.filter( q => Game['recentQuestions'].indexOf(q) < 0 );
-
     const i = Math.floor(Math.random() * nonAskedQs.length);
-    const newQuestion = nonAskedQs[i];
 
-    return newQuestion;
+    return nonAskedQs[i];
   }
 
   /**
@@ -162,7 +160,7 @@ module.exports = function(robot) {
    * @return integer
    */
   this.getNumGuessed = function () {
-    const numGuessed = 0;
+    let numGuessed = 0;
     for (let user of Object.keys(Game['answers'])) {
       if (Game['answers'][user]['guessed']) {
         numGuessed++;
