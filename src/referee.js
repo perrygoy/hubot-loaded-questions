@@ -140,7 +140,7 @@ module.exports = function(robot) {
    */
   this.getNumGuessed = function () {
     const numGuessed = 0;
-    for (let user of Game['answers']) {
+    for (let user of Object.keys(Game['answers'])) {
       if (Game['answers'][user]['guessed']) {
         numGuessed++;
       }
@@ -156,7 +156,7 @@ module.exports = function(robot) {
    **/
   this.getUnguessedUsers = function() {
     const users = [];
-    for (let user of Game['answers']) {
+    for (let user of Object.keys(Game['answers'])) {
       if (!Game['answers'][user]['guessed']) {
         users.push(user)
       }
@@ -177,7 +177,7 @@ module.exports = function(robot) {
     Game['questionTimestamp'] = null;
 
     let users = [];
-    for (let user of Game['answers']){
+    for (let user of Object.keys(Game['answers'])) {
       const obj = Game['answers'][user];
       obj['user'] = user;
       obj['guessed'] = false;
