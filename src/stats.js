@@ -16,9 +16,8 @@ module.exports = function(robot) {
    */
   this.loadStats = function() {
     Stats = robot.brain.data.loadedQuestions || Stats
-    var statsCopy = Object.assign({}, Stats);
 
-    return statsCopy;
+    return Object.assign({}, Stats);
   }
 
   this.addStatsIfMissing = function(user) {
@@ -40,34 +39,30 @@ module.exports = function(robot) {
   this.cheated = function(user) {
     Stats = addStatsIfMissing(user);
 
-    data = Stats['usersData'][user]
-    data['cheats']++;
+    Stats['usersData'][user]['cheats']++;
     saveStats();
   }
 
   this.correct = function(user) {
     Stats = addStatsIfMissing(user);
 
-    data = Stats['usersData'][user]
-    data['guesses']++;
-    data['rights']++;
+    Stats['usersData'][user]['guesses']++;
+    Stats['usersData'][user]['rights']++;
     saveStats();
   }
 
   this.wrong = function(user) {
     Stats = addStatsIfMissing(user);
 
-    data = Stats['usersData'][user]
-    data['guesses']++;
-    data['wrongs']++;
+    Stats['usersData'][user]['guesses']++;
+    Stats['usersData'][user]['wrongs']++;
     saveStats();
   }
 
   this.answered = function(user) {
     Stats = addStatsIfMissing(user);
 
-    data = Stats['usersData'][user]
-    data['answers']++;
+    Stats['usersData'][user]['answers']++;
     Stats['numAnswers']++;
     saveStats();
   }

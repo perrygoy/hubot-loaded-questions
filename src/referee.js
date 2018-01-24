@@ -11,27 +11,16 @@ var Game = {
       'recentQuestions': [],
     }
 
-function shuffle(array) {
-  if (array.length <= 1) {
-    return array;
-  }
-
-  var currentIndex = array.length, temporaryValue, randomIndex;
-
-  // While there remain elements to shuffle...
-  while (0 !== currentIndex) {
-
-    // Pick a remaining element...
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex -= 1;
-
-    // And swap it with the current element.
-    temporaryValue = array[currentIndex];
-    array[currentIndex] = array[randomIndex];
-    array[randomIndex] = temporaryValue;
-  }
-
-  return array;
+/**
+ * Shuffles array in place. ES6 version
+ * @param {Array} a items An array containing the items.
+ */
+function shuffle(a) {
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
 }
 
 
@@ -43,9 +32,8 @@ module.exports = function(robot) {
    */
   this.loadGame = function() {
     Game = robot.brain.data.loadedQuestionsGame || Game;
-    var gameCopy = Object.assign({}, Game);
 
-    return gameCopy;
+    return Object.assign({}, Game);
   }
 
   // Game info
@@ -63,13 +51,11 @@ module.exports = function(robot) {
   }
 
   this.orderedAnswers = function() {
-    var orderedAnswers = Object.assign({}, Game['orderedAnswers']);
-    return orderedAnswers;
+    return Object.assign({}, Game['orderedAnswers']);;
   }
 
   this.answers = function() {
-    var answers = Object.assign({}, Game['answers']);
-    return answers;
+    return Object.assign({}, Game['answers']);;
   }
 
   this.recentQuestions = function() {
@@ -88,17 +74,17 @@ module.exports = function(robot) {
    *
    * @return string
    */
-  var getNewishQuestion = function(questions) {
+  this.getNewishQuestion = function(questions) {
     if (Game['recentQuestions'].length == questions.length) {
       Game['recentQuestions'] = [];
       saveGame();
     }
     robot.logger.info("Loaded Questions: " + (questions.length - Game['recentQuestions'].length) + " new questions remaining.");
 
-    var nonAskedQs = questions.filter( q => Game['recentQuestions'].indexOf(q) < 0 );
+    const nonAskedQs = questions.filter( q => Game['recentQuestions'].indexOf(q) < 0 );
 
-    var i = Math.floor(Math.random() * nonAskedQs.length);
-    var newQuestion = nonAskedQs[i];
+    const i = Math.floor(Math.random() * nonAskedQs.length);
+    const newQuestion = nonAskedQs[i];
 
     return newQuestion;
   }
@@ -108,7 +94,7 @@ module.exports = function(robot) {
    * data, set the topic, and save the game-state.
    */
   this.startNewRound = function(questions) {
-    var question = getNewishQuestion(questions);
+    const question = getNewishQuestion(questions);
 
     Game['curQuestion'] = question;
     Game['questionTimestamp'] = new Date();
@@ -153,13 +139,30 @@ module.exports = function(robot) {
    * @return integer
    */
   this.getNumGuessed = function () {
-    var numGuessed = 0;
-    for (var user in Game['answers']) {
+    const numGuessed = 0;
+    for (let user of Game['answers']) {
       if (Game['answers'][user]['guessed']) {
         numGuessed++;
       }
     }
+
     return numGuessed;
+  }
+
+  /**
+   * gets the list of users who haven't been guessed yet.
+   *
+   * @return array
+   **/
+  this.getUnguessedUsers = function() {
+    const users = [];
+    for (let user of Game['answers']) {
+      if (!Game['answers'][user]['guessed']) {
+        users.push(user)
+      }
+    }
+
+    return shuffle(users);
   }
 
   this.haveAllBeenGuessed = function() {
@@ -173,16 +176,16 @@ module.exports = function(robot) {
     Game['curQuestion'] = '';
     Game['questionTimestamp'] = null;
 
-    var users = [];
-    for (var user in Game['answers']){
-      var obj = Game['answers'][user];
+    let users = [];
+    for (let user of Game['answers']){
+      const obj = Game['answers'][user];
       obj['user'] = user;
       obj['guessed'] = false;
       users.push(obj);
     }
 
     users = shuffle(users);
-    for (var i = 1; i <= users.length; i++) {
+    for (let i = 1; i <= users.length; i++) {
       Game['orderedAnswers'][i] = users[i - 1];
     }
 
