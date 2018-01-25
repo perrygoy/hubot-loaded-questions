@@ -40,10 +40,10 @@
 
 const fs = require('fs');
 const path = require('path');
-const refMod = require('./referee');
-const statsMod = require('./stats');
+const RefMod = require('./referee');
+const StatsMod = require('./stats');
 
-const ROOM = process.env.HUBOT_LOADED_QUESTIONS_ROOM || "#random";
+const ROOM = process.env.HUBOT_LOADED_QUESTIONS_ROOM || '#random';
 const QUORUM = process.env.HUBOT_LOADED_QUESTIONS_QUORUM || 5;
 const SKIPNUM = process.env.HUBOT_LOADED_QUESTIONS_SKIPNUM || 2;
 const TIMEOUT = process.env.HUBOT_LOADED_QUESTIONS_TIMEOUT || 5;
@@ -53,11 +53,11 @@ const LIGHT_INSULTS = require('../res/light_insults.json');
 
 
 module.exports = function(robot) {
-  const noCurrentQuestionMsg = "There isn't a question loaded right now! You can start a new round by saying `!loadquestion`.";
+  const noCurrentQuestionMsg = 'There isn\'t a question loaded right now! You can start a new round by saying `!loadquestion`.';
   const submitAnswerHelpMsg = 'You can submit your own answer by sending me a private message beginning with `submit answer`, followed by your answer.';
 
-  const Stats = new statsMod(robot);
-  const Referee = new refMod(robot);
+  const Stats = new StatsMod(robot);
+  const Referee = new RefMod(robot);
   const Questions = QUESTIONS.slice();
 
   let timeout = null;
@@ -68,68 +68,68 @@ module.exports = function(robot) {
     robot.logger.info('Loaded Questions loaded, using default room #random. Set HUBOT_LOADED_QUESTIONS_ROOM to a channel name or ID to use a different room.');
   }
 
-  this.getPluralizedNoun = function(num, str, pluralizer) {
+  this.getPluralizedNoun = (num, str, pluralizer) => {
     let pluralizedString = '';
     if (num == 1) {
-      pluralizedString = num + ' ' + str;
+      pluralizedString = `${num} ${str}`;
     } else {
-      pluralizedString = num + ' ' + str + pluralizer;
+      pluralizedString = `${num} ${str}${pluralizer}`;
     }
     return pluralizedString;
-  }
+  };
 
-  this.getPluralizedVerb = function(num, singleVerb, pluralVerb) {
+  this.getPluralizedVerb = (num, singleVerb, pluralVerb) => {
     if (num == 1) {
       return singleVerb;
     } else {
       return pluralVerb;
     }
-  }
+  };
 
-  this.getRandomInsult = function() {
+  this.getRandomInsult = () => {
     const i = Math.floor(Math.random() * LIGHT_INSULTS.length);
     return LIGHT_INSULTS[i];
-  }
+  };
 
-  this.getUsername = function(msg) {
+  this.getUsername = msg => {
     return msg.message.user.profile.display_name;
-  }
+  };
 
-  this.isPrivateMsg = function(msg) {
+  this.isPrivateMsg = msg => {
     return msg.message.rawMessage.channel.is_im;
-  }
+  };
 
   /**
    * sends a message to the Loaded Questions room.
    *
-   * @param msg the message to send
+   * @param {string} msg the message to send
    */
-  this.messageRoom = function(msg) {
-    robot.messageRoom(ROOM, msg);
-  }
+  this.messageRoom = msg => {
+    robot.this.messageRoom(ROOM, msg);
+  };
 
   /**
    * sets the room's topic, if able. If the ROOM is not set to a channel
    * ID, this operation will fail and a WARNING will be logged.
    *
-   * @param fallbackRoomId the ID to use if ROOM is not set to an ID
-   * @param topic the text to set the topic to
+   * @param {string} fallbackRoomId the ID to use if ROOM is not set to an ID
+   * @param {string} topic the text to set the topic to
    */
-  this.setTopic = function(fallbackRoomId, topic) {
+  this.setTopic = (fallbackRoomId, topic) => {
     try {
-      robot.adapter.client.setTopic(ROOM, topic);
-    } catch(err) {
+      robot.adapter.client.this.setTopic(ROOM, topic);
+    } catch (err) {
       robot.logger.warning(`HUBOT_LOADED_QUESTIONS_ROOM must be set to a channel ID to set the topic correctly. Guessing room ID is ${fallbackRoomId}`);
-      robot.adapter.client.setTopic(fallbackRoomId, topic);
+      robot.adapter.client.this.setTopic(fallbackRoomId, topic);
     }
-  }
+  };
 
   /**
    * loads the user-provided questions from `./res/loaded_questions.json`
    *
-   * @return array
+   * @return {array} array
    */
-  this.loadExtraQuestions = function() {
+  this.loadExtraQuestions = () => {
     let extraQs = [];
 
     try {
@@ -139,37 +139,37 @@ module.exports = function(robot) {
       // If no custom questions have been provided, whatever; just use the defaults
       // ... but if it's a different error, throw that up
       if (err.code !== 'ENOENT') {
-        throw(err);
+        throw (err);
       }
     }
 
     return extraQs;
-  }
+  };
 
   /**
    * gets the full questions list from the base pack + the user-provided
    * questions in `res/loaded_questions.json`, if it exists.
    *
-   * @return array
+   * @return {array} array
    */
-  this.getAllQuestions = function() {
-    return QUESTIONS.slice().concat(loadExtraQuestions());;
-  }
+  this.getAllQuestions = () => {
+    return QUESTIONS.slice().concat(this.loadExtraQuestions());
+  };
 
   /**
    * forces the end of the round, to be used with `setTimeout()`.
    */
-  this.forceRoundOver = function() {
+  this.forceRoundOver = () => {
     Referee.endRound();
-    checkRecentQuestions();
+    this.checkRecentQuestions();
 
-    messageRoom(`*ROUND ENDED!!!* (due to timeout)\n\n${getAnswersMsg()}`);
-  }
+    this.messageRoom(`*ROUND ENDED!!!* (due to timeout)\n\n${this.getAnswersMsg()}`);
+  };
 
   /**
    * checks if it's time to reset the Recent Questions list.
    */
-  this.checkRecentQuestions = function() {
+  this.checkRecentQuestions = () => {
     if (Referee.recentQuestions().length == Questions.length) {
       Referee.resetRecentQuestions();
     }
@@ -180,24 +180,24 @@ module.exports = function(robot) {
    * has been active, and instructions for submitting answers
    *
    * @param {object} msg - hubot msg object
-   * @return string
+   * @return {string} string
    */
-  this.getCurQuestionMsg = function() {
-    let curQuestionMsg = `The current question is: *"${Referee.currentQuestion()}"*\n`;
+  this.getCurQuestionMsg = () => {
+    let curQuestionMsg = `The current question is: *'${Referee.currentQuestion()}'*\n`;
 
-    const timeSinceStart = Math.floor(Math.abs(new Date() - new Date(Referee.questionTimestamp())) / (60*1000));
+    const timeSinceStart = Math.floor(Math.abs(new Date() - new Date(Referee.questionTimestamp())) / (60 * 1000));
     if (timeSinceStart > 0) {
-      curQuestionMsg += `The round started ~${getPluralizedNoun(timeSinceStart, 'minute', 's')} ago.\n\n`;
+      curQuestionMsg += `The round started ~${this.getPluralizedNoun(timeSinceStart, 'minute', 's')} ago.\n\n`;
     }
 
     const numAnswers = Referee.getNumAnswers();
     let numAnswersMsg = '';
     if (numAnswers > 0) {
-      numAnswersMsg = `There ${getPluralizedVerb(numAnswers, 'is', 'are')} currently ${getPluralizedNoun(numAnswers, 'answer', 's')} to this question.\n`;
+      numAnswersMsg = `There ${this.getPluralizedVerb(numAnswers, 'is', 'are')} currently ${this.getPluralizedNoun(numAnswers, 'answer', 's')} to this question.\n`;
     }
 
-    return curQuestionMsg + numAnswersMsg + submitAnswerHelpMsg;
-  }
+    return `${curQuestionMsg}${numAnswersMsg}${submitAnswerHelpMsg}`;
+  };
 
   /**
    * get a message showing the list of answers, along with the display
@@ -205,26 +205,25 @@ module.exports = function(robot) {
    * so far.
    *
    * @param {object} msg - hubot msg object
-   * @return string
+   * @return {string}
    */
-  this.getAnswersMsg = function(msg) {
+  this.getAnswersMsg = msg => {
     const numAnswers = Referee.getNumAnswers();
-    let answersMessage = `There ${getPluralizedVerb(numAnswers, 'was', 'were')} ${getPluralizedNoun(numAnswers, 'answer', 's')} submitted for _"${Referee.lastQuestion()}"_:\n`;
+    let answersMessage = `There ${this.getPluralizedVerb(numAnswers, 'was', 'were')} ${this.getPluralizedNoun(numAnswers, 'answer', 's')} submitted for _'${Referee.lastQuestion()}'_:\n`;
 
     const curQuestion = Referee.currentQuestion();
-    if (curQuestion == '') {
-      const number = 1;
+    if (curQuestion === '') {
       const orderedAnswers = Referee.orderedAnswers();
 
-      for (let answerNum of Object.keys(orderedAnswers)) {
-        answersMessage += `> *${answerNum}.* ${orderedAnswers[answerNum]['answer']}`;
+      Object.keys(orderedAnswers).forEach(answerNum => {
+        answersMessage += `> *${answerNum}.* ${orderedAnswers[answerNum].answer}`;
 
-        if (orderedAnswers[answerNum]['guessed']) {
-          answersMessage += ` - *${orderedAnswers[answerNum]['user']}*\n`;
+        if (orderedAnswers[answerNum].guessed) {
+          answersMessage += ` - *${orderedAnswers[answerNum].user}*\n`;
         } else {
           answersMessage += '\n';
         }
-      }
+      });
 
       if (Referee.haveAllBeenGuessed()) {
         answersMessage += '\nAll answers have been guessed! To start a new round, say `!loadquestion`.';
@@ -233,91 +232,89 @@ module.exports = function(robot) {
         answersMessage += '\nTo guess who submitted an answer, say `!guessanswer [number] [username]`.'
       }
     } else {
-      answersMessage = "The round isn't over yet!\n\n";
-      answersMessage += getCurQuestionMsg();
+      answersMessage = 'The round isn\'t over yet!\n\n';
+      answersMessage += this.getCurQuestionMsg();
     }
-    return answersMessage
-  }
+    return answersMessage;
+  };
 
   // Initialization
 
-  robot.brain.on('connected', function() {
+  robot.brain.on('connected', () => {
     robot.logger.debug(`Loaded Questions: Game loaded: ${JSON.stringify(Referee.loadGame(), null, 2)}`);
     robot.logger.debug(`Loaded Questions: Stats loaded: ${JSON.stringify(Stats.loadStats(), null, 2)}`);
   });
 
   // Responses
 
-  robot.hear(/submit ?answer ((.|\s)+)/i, function(msg) {
-    if (isPrivateMsg(msg)) {
-      const curQuestion = Referee.currentQuestion();
-
+  robot.hear(/submit ?answer ((.|\s)+)/i, msg => {
+    if (this.isPrivateMsg(msg)) {
       if (Referee.roundIsInProgress()) {
         const answer = msg.match[1];
-        const user = getUsername(msg);
+        const user = this.getUsername(msg);
         const answers = Referee.answers();
 
         if (answers.hasOwnProperty(user)) {
           Referee.updateAnswer(user, answer);
         } else {
-          Referee.saveAnswer(user, answer)
+          Referee.saveAnswer(user, answer);
           const numAnswers = Referee.getNumAnswers();
 
-          let roomMessage = `Got an answer from someone! I now have ${getPluralizedNoun(numAnswers, 'answer', 's')}.`;
+          let roomMessage = `Got an answer from someone! I now have ${this.getPluralizedNoun(numAnswers, 'answer', 's')}.`;
 
-          if (numAnswers == QUORUM) {
+          if (numAnswers === QUORUM) {
             roomMessage += `\n_QUORUM REACHED!_ This round will end in ${TIMEOUT} minutes.`;
-            timeout = setTimeout(() => forceRoundOver(), TIMEOUT*60*1000);
+            timeout = setTimeout(() => this.forceRoundOver(), TIMEOUT * 60 * 1000);
           }
-          messageRoom(roomMessage);
+          this.messageRoom(roomMessage);
         }
 
-        msg.send("Got it. If you change your mind, submit your answer again and I'll update it.");
+        msg.send('Got it. If you change your mind, submit your answer again and I\'ll update it.');
         Stats.answered(user);
       } else {
         msg.send(noCurrentQuestionMsg);
       }
     } else {
-      msg.send("Nah, you need to submit your answers in a private message with me. I'll pretend I didn't see that.");
+      msg.send('Nah, you need to submit your answers in a private message with me. I\'ll pretend I didn\'t see that.');
     }
   });
 
-  robot.hear(/!loadquestions?/i, function(msg) {
+  robot.hear(/!loadquestions?/i, msg => {
     if (!Referee.roundIsInProgress()) {
       Referee.startNewRound(Questions);
 
-      setTopic(msg.message.room, Referee.currentQuestion());
-      messageRoom(`*NEW ROUND STARTED!!!*\n\n${getCurQuestionMsg()}`);
+      this.setTopic(msg.message.room, Referee.currentQuestion());
+      this.messageRoom(`*NEW ROUND STARTED!!!*\n\n${this.getCurQuestionMsg()}`);
     } else {
-      msg.send(`There is already a question loaded!\n\n${getCurQuestionMsg()}`);
+      msg.send(`There is already a question loaded!\n\n${this.getCurQuestionMsg()}`);
     }
   });
 
-  robot.hear(/!printquestions?/i, function(msg) {
+  robot.hear(/!printquestions?/i, msg => {
     if (Referee.roundIsInProgress()) {
-      msg.send(getCurQuestionMsg());
+      msg.send(this.getCurQuestionMsg());
     } else {
       msg.send(noCurrentQuestionMsg);
     }
   });
 
-  robot.hear(/^!skipquestions?/i, function(msg) {
+  robot.hear(/^!skipquestions?/i, msg => {
     let message = '';
 
-    if ((skipTimestamp != null) && ((new Date() - skipTimestamp/1000) < 10)){
+    if ((skipTimestamp != null) && ((new Date() - skipTimestamp / 1000) < 10)) {
       // We probably just skipped a question and this vote came a little late
-      message = "Sorry, there's a 10 second cooldown to skipping questions, to prevent from skipping another one accidentally.\n\n";
-      message += `You can vote to skip again in ${(10 - (new Date() - skipTimestamp/1000))} seconds.`;
+      message = 'Sorry, there\'s a 10 second cooldown to skipping questions, to prevent from skipping another one accidentally.\n\n';
+      message += `You can vote to skip again in ${(10 - (new Date() - skipTimestamp / 1000))} seconds.`;
     } else {
       skipTimestamp = null;
 
-      const username = getUsername(msg);
-      skipVotes.add(username)
+      const username = this.getUsername(msg);
+      skipVotes.add(username);
 
       if (skipVotes.size < SKIPNUM) {
-        message = `*Vote to skip added!* ${getPluralizedNoun(SKIPNUM - skipVotes.size, "vote", "s")} more and we'll skip this one!`;
+        message = `*Vote to skip added!* ${this.getPluralizedNoun(SKIPNUM - skipVotes.size, 'vote', 's')} more and we'll skip this one!`;
       } else {
-        if (Referee.roundIsInProgress()){
+        if (Referee.roundIsInProgress()) {
           const quips = [
             'Yeah, I didn\'t like it either.',
             'That question _is_ pretty played out.',
@@ -332,25 +329,25 @@ module.exports = function(robot) {
           message = `${quips[i]} _SKIPPED!_\n\n`;
 
           Referee.endRound();
-          checkRecentQuestions();
+          this.checkRecentQuestions();
         }
         Referee.startNewRound(Questions);
         skipVotes = new Set([]);
         skipTimestamp = new Date();
 
-        setTopic(msg.message.room, Referee.currentQuestion());
-        message += `*NEW ROUND STARTED!!!*\n\n${getCurQuestionMsg()}`;
+        this.setTopic(msg.message.room, Referee.currentQuestion());
+        message += `*NEW ROUND STARTED!!!*\n\n${this.getCurQuestionMsg()}`;
       }
     }
-    messageRoom(message);
+    this.messageRoom(message);
   });
 
-  robot.hear(/^!endquestions?/i, function(msg) {
+  robot.hear(/^!endquestions?/i, msg => {
     if (Referee.roundIsInProgress()) {
       Referee.endRound();
-      checkRecentQuestions();
+      this.checkRecentQuestions();
 
-      msg.send('*ROUND ENDED!!!*\n\n' + getAnswersMsg());
+      msg.send(`*ROUND ENDED!!!*\n\n${this.getAnswersMsg()}`);
 
       if (timeout != null) {
         clearTimeout(timeout);
@@ -361,11 +358,11 @@ module.exports = function(robot) {
     }
   });
 
-  robot.hear(/!printanswers?/i, function(msg) {
-    msg.send(getAnswersMsg());
+  robot.hear(/!printanswers?/i, msg => {
+    msg.send(this.getAnswersMsg());
   });
 
-  robot.hear(/^!(guess ?answer|ga) (\d+) (.*?)\s*$/i, function(msg) {
+  robot.hear(/^!(guess ?answer|ga) (\d+) (.*?)\s*$/i, msg => {
     let message = '';
 
     if (Referee.roundIsInProgress()) {
@@ -375,8 +372,8 @@ module.exports = function(robot) {
       message = 'All answers have been guessed! To start a new round, say `!loadquestion`.';
     } else if (Referee.getNumAnswers() > 0) {
       const answerNum = Number(msg.match[2]);
-      const user = msg.match[3];
-      const username = getUsername(msg);
+      let user = msg.match[3];
+      const username = this.getUsername(msg);
 
       const answers = Referee.answers();
       const orderedAnswers = Referee.orderedAnswers();
@@ -385,34 +382,34 @@ module.exports = function(robot) {
         user = user.substr(1);
       }
 
-      if (username == user) {
+      if (username === user) {
         msg.send('You can\'t guess your own answer, cheater!');
         Stats.cheated(username);
         return;
       }
 
-      if (answers.hasOwnProperty(user)){
-        if (!orderedAnswers[answerNum]['guessed'] && !answers[user]['guessed']) {
-          if (orderedAnswers[answerNum]['user'] == user){
+      if (answers.hasOwnProperty(user)) {
+        if (!orderedAnswers[answerNum].guessed && !answers[user].guessed) {
+          if (orderedAnswers[answerNum].user === user) {
             Referee.answerFound(user, answerNum);
-            message = `You got it!! "${answers[user]['answer']}" was submitted by ${user}.\n\n`;
+            message = `You got it!! '${answers[user].answer}' was submitted by ${user}.\n\n`;
 
             Stats.correct(username);
 
             if (Referee.haveAllBeenGuessed()) {
-              message += getAnswersMsg();
-              setTopic(msg.message.room, "Ready to start next round!");
+              message += this.getAnswersMsg();
+              this.setTopic(msg.message.room, 'Ready to start next round!');
             }
           } else {
             message = 'Nope, guess again.';
             Stats.wrong(username);
           }
         } else {
-          if (answers[user]['guessed']) {
-            message = `That user\'s answer was already found, you ${getRandomInsult()}!\n\n`;
+          if (answers[user].guessed) {
+            message = `That user\'s answer was already found, you ${this.getRandomInsult()}!\n\n`;
             Stats.wrong(username);
           } else {
-            message = `That answer number was already correctly guessed, you ${getRandomInsult()}!\n\n`;
+            message = `That answer number was already correctly guessed, you ${this.getRandomInsult()}!\n\n`;
             Stats.wrong(username);
           }
         }
@@ -420,7 +417,7 @@ module.exports = function(robot) {
         message = 'That user didn\'t submit an answer to this question. :cold_sweat:';
         Stats.wrong(username);
       }
-    } else if(Referee.getNumAnswers() == 0) {
+    } else if (Referee.getNumAnswers() === 0) {
       message = 'There were no answers for the previous round! Sorry about that :\\';
     } else {
       message = 'Whoa jeez i\'m not sure how we got here.';
@@ -428,28 +425,28 @@ module.exports = function(robot) {
     msg.send(message);
   });
 
-  robot.hear(/!lqstats ?(.*)?/i, function(msg) {
+  robot.hear(/!lqstats ?(.*)?/i, msg => {
     const user = msg.match[1];
     let message = '_Stats';
-    stats = Stats.loadStats();
+    const stats = Stats.loadStats();
 
     if (user) {
-      const data = stats['usersData'][user]
+      const data = stats.usersData[user];
       message += ` for *${user}*_:\n\n`;
-      message += `>*Total Answers*: ${data['answers']}\n`;
-      message += `>*Total Guesses*: ${data['guesses']}\n`;
-      message += `>  - *Total Correct*: ${data['rights']}\n`;
-      message += `>  - *Total Incorrect*: ${data['wrongs']}\n`;
-      message += `>  - *Total Cheats*: ${data['cheats']}`;
+      message += `>*Total Answers*: ${data.answers}\n`;
+      message += `>*Total Guesses*: ${data.guesses}\n`;
+      message += `>  - *Total Correct*: ${data.rights}\n`;
+      message += `>  - *Total Incorrect*: ${data.wrongs}\n`;
+      message += `>  - *Total Cheats*: ${data.cheats}`;
     } else {
       message += ' for Loaded Questions_:\n\n';
       message += `>*Total Questions*: ${Questions.length}\n`;
-      message += `>*Total Questions Loaded*: ${stats['numQuestions']}\n`;
-      message += `>*Total Answers Given*: ${stats['numAnswers']}\n`;
-      message += `>*Players*: ${Object.keys(stats['usersData']).join(', ')}\n\n`;
+      message += `>*Total Questions Loaded*: ${stats.numQuestions}\n`;
+      message += `>*Total Answers Given*: ${stats.numAnswers}\n`;
+      message += `>*Players*: ${Object.keys(stats.usersData).join(', ')}\n\n`;
       message += '_To find out stats about a specific player, say_ `!lqstats [username]`.';
     }
 
     msg.send(message);
   });
-}
+};
