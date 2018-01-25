@@ -127,7 +127,7 @@ module.exports = function(robot) {
   /**
    * loads the user-provided questions from `./res/loaded_questions.json`
    *
-   * @return {array} array
+   * @return {string[]} array
    */
   this.loadExtraQuestions = () => {
     let extraQs = [];
@@ -150,7 +150,7 @@ module.exports = function(robot) {
    * gets the full questions list from the base pack + the user-provided
    * questions in `res/loaded_questions.json`, if it exists.
    *
-   * @return {array} array
+   * @return {string[]} array
    */
   this.getAllQuestions = () => {
     return QUESTIONS.slice().concat(this.loadExtraQuestions());

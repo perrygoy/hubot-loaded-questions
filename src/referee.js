@@ -13,8 +13,8 @@ let Game = {
 
 /**
  * Shuffles array in place. ES6 version
- * @param {Array} a items An array containing the items.
- * @returns {Array}
+ * @param {[]} a items An array containing the items.
+ * @returns {[]}
  */
 function shuffle(a) {
   for (let i = a.length - 1; i > 0; i--) {
@@ -76,8 +76,8 @@ module.exports = function(robot) {
    * gets a new-ish question, by stripping out the already-asked questions
    * (if any) and getting a random question from the remaining list.
    *
-   * @param {Array} questions
-   * @return {String}
+   * @param {string[]} questions
+   * @return {string}
    */
   this.getNewishQuestion = questions => {
     if (Game.recentQuestions.length === questions.length) {
@@ -95,7 +95,7 @@ module.exports = function(robot) {
   /**
    * start a new round: get a new question, re-initialize all the round
    * data, set the topic, and save the game-state.
-   * @param {Array} questions
+   * @param {string[]} questions
    */
   this.startNewRound = questions => {
     const question = this.getNewishQuestion(questions);
@@ -134,7 +134,7 @@ module.exports = function(robot) {
   /**
    * gets the number of answers that have been submitted for this question
    *
-   * @returns {Number} integer
+   * @returns {number} integer
    */
   this.getNumAnswers = () => {
     return Object.keys(Game.answers).length;
@@ -163,7 +163,7 @@ module.exports = function(robot) {
   /**
    * gets the number of answers that have been guessed correctly
    *
-   * @returns {Number} integer
+   * @returns {number} integer
    */
   this.getNumGuessed = () => {
     let numGuessed = 0;
@@ -179,7 +179,7 @@ module.exports = function(robot) {
   /**
    * gets the list of users who haven't been guessed yet.
    *
-   * @returns {Array} array
+   * @returns {Object[]} array
    **/
   this.getUnguessedUsers = () => {
     const users = Game.answers.filter(user => !user.guessed);
