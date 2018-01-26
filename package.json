@@ -25,5 +25,10 @@
   "bugs": {
     "url": "https://github.com/perrygoy/hubot-loaded-questions/issues"
   },
-  "homepage": "https://github.com/perrygoy/hubot-loaded-questions#readme"
+  "homepage": "https://github.com/perrygoy/hubot-loaded-questions#readme",
+  "devDependencies": {
+    "babel-eslint": "^8.2.1",
+    "eslint": "^4.16.0"
+  },
+  "eslintConfig": "./.eslintrc"
 }
