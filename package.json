@@ -4,7 +4,7 @@
   "description": "Play Loaded Questions, the game where guessing the answers gets you in just as much trouble as giving your own.",
   "main": "index.coffee",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -28,7 +28,12 @@
   "homepage": "https://github.com/perrygoy/hubot-loaded-questions#readme",
   "devDependencies": {
     "babel-eslint": "^8.2.1",
-    "eslint": "^4.16.0"
+    "eslint": "^4.16.0",
+    "hubot-test-helper": "^1.8.1",
+    "jest-cli": "^22.1.4"
   },
-  "eslintConfig": "./.eslintrc"
+  "eslintConfig": "./.eslintrc",
+  "jest": {
+    "testEnvironment": "node"
+  }
 }

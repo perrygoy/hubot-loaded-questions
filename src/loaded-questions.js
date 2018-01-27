@@ -70,8 +70,10 @@ module.exports = function(robot) {
 
     this.getPluralizedNoun = (num, str, pluralizer) => {
         let pluralizedString = '';
-        if (num == 1) {
+        if (num === 1) {
             pluralizedString = `${num} ${str}`;
+        } else if (str[str.length - 1] === 'y') {
+            pluralizedString = `${num} ${str.slice(0, str.length - 1)}${pluralizer}`;
         } else {
             pluralizedString = `${num} ${str}${pluralizer}`;
         }
@@ -105,7 +107,7 @@ module.exports = function(robot) {
    * @param {string} msg the message to send
    */
     this.messageRoom = msg => {
-        robot.this.messageRoom(ROOM, msg);
+        robot.messageRoom(ROOM, msg);
     };
 
     /**
@@ -117,10 +119,10 @@ module.exports = function(robot) {
    */
     this.setTopic = (fallbackRoomId, topic) => {
         try {
-            robot.adapter.client.this.setTopic(ROOM, topic);
+            robot.adapter.client.setTopic(ROOM, topic);
         } catch (err) {
             robot.logger.warning(`HUBOT_LOADED_QUESTIONS_ROOM must be set to a channel ID to set the topic correctly. Guessing room ID is ${fallbackRoomId}`);
-            robot.adapter.client.this.setTopic(fallbackRoomId, topic);
+            robot.adapter.client.setTopic(fallbackRoomId, topic);
         }
     };
 

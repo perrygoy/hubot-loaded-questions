@@ -15,7 +15,9 @@
 "module": true,
 "require": true,
 "define": true,
-"process": true
+"process": true,
+"test": true,
+"expect": true,
 },
 "parser": "babel-eslint",
 "rules": {

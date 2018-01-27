@@ -67,7 +67,7 @@ module.exports = function(robot) {
         this.saveStats();
     };
 
-    this.this.saveStats = () => {
+    this.saveStats = () => {
         robot.brain.data.loadedQuestions = Stats;
         robot.brain.emit('save', robot.brain.data);
     };
