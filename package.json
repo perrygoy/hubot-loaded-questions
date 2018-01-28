@@ -4,7 +4,7 @@
   "description": "Play Loaded Questions, the game where guessing the answers gets you in just as much trouble as giving your own.",
   "main": "index.coffee",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -25,5 +25,26 @@
   "bugs": {
     "url": "https://github.com/perrygoy/hubot-loaded-questions/issues"
   },
-  "homepage": "https://github.com/perrygoy/hubot-loaded-questions#readme"
+  "homepage": "https://github.com/perrygoy/hubot-loaded-questions#readme",
+  "devDependencies": {
+    "babel-eslint": "^8.2.1",
+    "eslint": "^4.16.0",
+    "hubot-test-helper": "^1.8.1",
+    "jest-cli": "^22.1.4"
+  },
+  "eslintConfig": "./.eslintrc",
+  "jest": {
+    "testEnvironment": "node",
+    "verbose": true,
+    "coveragePathIgnorePatterns": [
+        "<rootDir>/__test__/transforms/.+js"
+    ],
+    "transform": {
+        ".+hubot.+src.+robot.js$": "<rootDir>/__test__/transforms/require-transform.js",
+        ".+src.+loaded-questions.js$": "<rootDir>/__test__/transforms/set-topic-transform.js" 
+    },
+    "transformIgnorePatterns": [
+        "node_modules/(?!(hubot))"
+    ]
+  }
 }

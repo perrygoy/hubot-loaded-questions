@@ -2,73 +2,73 @@
 //   Stats module
 //   Loads, saves, and tracks the stats for Loaded Questions
 
-var Stats = {
-  'numQuestions': 0,
-  'numAnswers': 0,
-  'usersData': {},
-}
+let Stats = {
+    numQuestions: 0,
+    numAnswers: 0,
+    usersData: {},
+};
 
 module.exports = function(robot) {
-
-  /**
+    /**
    * loads the stats from the brain, if available, and returns a copy of
    * the current stats.
+   * @returns {Object}
    */
-  this.loadStats = function() {
-    Stats = robot.brain.data.loadedQuestions || Stats
+    this.loadStats = () => {
+        Stats = robot.brain.data.loadedQuestions || Stats;
 
-    return Object.assign({}, Stats);
-  }
+        return Object.assign({}, Stats);
+    };
 
-  this.addStatsIfMissing = function(user) {
-    if (!Stats['usersData'].hasOwnProperty(user)) {
-      Stats['usersData'][user] = {
-        'cheats': 0,
-        'guesses': 0,
-        'rights': 0,
-        'wrongs': 0,
-        'answers': 0,
-      }
+    this.addStatsIfMissing = user => {
+        if (!Stats.usersData.hasOwnProperty(user)) {
+            Stats.usersData[user] = {
+                cheats: 0,
+                guesses: 0,
+                rights: 0,
+                wrongs: 0,
+                answers: 0,
+            };
 
-      saveStats();
-    }
+            this.saveStats();
+        }
 
-    return Stats;
-  }
+        return Stats;
+    };
 
-  this.cheated = function(user) {
-    Stats = addStatsIfMissing(user);
+    this.cheated = user => {
+        Stats = this.addStatsIfMissing(user);
 
-    Stats['usersData'][user]['cheats']++;
-    saveStats();
-  }
+        Stats.usersData[user].cheats++;
+        this.saveStats();
+    };
 
-  this.correct = function(user) {
-    Stats = addStatsIfMissing(user);
+    this.correct = user => {
+        Stats = this.addStatsIfMissing(user);
 
-    Stats['usersData'][user]['guesses']++;
-    Stats['usersData'][user]['rights']++;
-    saveStats();
-  }
+        Stats.usersData[user].guesses++;
+        Stats.usersData[user].rights++;
+        this.saveStats();
+    };
 
-  this.wrong = function(user) {
-    Stats = addStatsIfMissing(user);
+    this.wrong = user => {
+        Stats = this.addStatsIfMissing(user);
 
-    Stats['usersData'][user]['guesses']++;
-    Stats['usersData'][user]['wrongs']++;
-    saveStats();
-  }
+        Stats.usersData[user].guesses++;
+        Stats.usersData[user].wrongs++;
+        this.saveStats();
+    };
 
-  this.answered = function(user) {
-    Stats = addStatsIfMissing(user);
+    this.answered = user => {
+        Stats = this.addStatsIfMissing(user);
 
-    Stats['usersData'][user]['answers']++;
-    Stats['numAnswers']++;
-    saveStats();
-  }
+        Stats.usersData[user].answers++;
+        Stats.numAnswers++;
+        this.saveStats();
+    };
 
-  this.saveStats = function() {
-    robot.brain.data.loadedQuestions = Stats;
-    robot.brain.emit('save', robot.brain.data);
-  }
-}
+    this.saveStats = () => {
+        robot.brain.data.loadedQuestions = Stats;
+        robot.brain.emit('save', robot.brain.data);
+    };
+};
