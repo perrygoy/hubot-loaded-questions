@@ -55,7 +55,7 @@ const LIGHT_INSULTS = require('../res/light_insults.json');
 module.exports = function(robot) {
     const noCurrentQuestionMsg = 'There isn\'t a question loaded right now! You can start a new round by saying `!loadquestion`.';
     const submitAnswerHelpMsg = 'You can submit your own answer by sending me a private message beginning with `submit answer`, followed by your answer.';
-
+    debugger;
     const Stats = new StatsMod(robot);
     const Referee = new RefMod(robot);
     const Questions = QUESTIONS.slice();
@@ -67,7 +67,7 @@ module.exports = function(robot) {
     if (!process.env.HUBOT_LOADED_QUESTIONS_ROOM) {
         robot.logger.info('Loaded Questions loaded, using default room #random. Set HUBOT_LOADED_QUESTIONS_ROOM to a channel name or ID to use a different room.');
     }
-
+ 
     this.getPluralizedNoun = (num, str, pluralizer) => {
         let pluralizedString = '';
         if (num === 1) {
@@ -284,8 +284,12 @@ module.exports = function(robot) {
     robot.hear(/!loadquestions?/i, msg => {
         if (!Referee.roundIsInProgress()) {
             Referee.startNewRound(Questions);
-
-            this.setTopic(msg.message.room, Referee.currentQuestion());
+            try {
+                this.setTopic(msg.message.room, Referee.currentQuestion());
+            } catch (err) {
+                console.log(err);
+            }
+            
             this.messageRoom(`*NEW ROUND STARTED!!!*\n\n${this.getCurQuestionMsg()}`);
         } else {
             msg.send(`There is already a question loaded!\n\n${this.getCurQuestionMsg()}`);

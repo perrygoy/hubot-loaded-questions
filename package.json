@@ -34,6 +34,17 @@
   },
   "eslintConfig": "./.eslintrc",
   "jest": {
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "verbose": true,
+    "coveragePathIgnorePatterns": [
+        "<rootDir>/__test__/transforms/.+js"
+    ],
+    "transform": {
+        ".+hubot.+src.+robot.js$": "<rootDir>/__test__/transforms/require-transform.js",
+        ".+src.+loaded-questions.js$": "<rootDir>/__test__/transforms/set-topic-transform.js" 
+    },
+    "transformIgnorePatterns": [
+        "node_modules/(?!(hubot))"
+    ]
   }
 }
