@@ -14,5 +14,10 @@ describe('When a user types \'!loadquestion\'', () => {
         expect(lqBotRoom.messages[0]).toHaveLength(2);
         expect(lqBotRoom.messages[1][1]).toEqual(expect.stringContaining('NEW ROUND STARTED'));
     });
+    test('Display a descriptive message if round is already active', () => {
+        expect(lqBotRoom.messages).toHaveLength(4);
+        expect(lqBotRoom.messages[3]).toHaveLength(2);
+        expect(lqBotRoom.messages[3][1]).toEqual(expect.stringContaining('There is already a question loaded!'));
+    });
 });
 

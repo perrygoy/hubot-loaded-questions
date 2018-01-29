@@ -55,7 +55,7 @@ const LIGHT_INSULTS = require('../res/light_insults.json');
 module.exports = function(robot) {
     const noCurrentQuestionMsg = 'There isn\'t a question loaded right now! You can start a new round by saying `!loadquestion`.';
     const submitAnswerHelpMsg = 'You can submit your own answer by sending me a private message beginning with `submit answer`, followed by your answer.';
-    debugger;
+
     const Stats = new StatsMod(robot);
     const Referee = new RefMod(robot);
     const Questions = QUESTIONS.slice();
