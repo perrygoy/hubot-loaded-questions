@@ -18,6 +18,12 @@
 "process": true,
 "test": true,
 "expect": true,
+"beforeEach": true,
+"afterEach": true,
+"beforeAll": true,
+"afterAll": true,
+"describe": true,
+
 },
 "parser": "babel-eslint",
 "rules": {

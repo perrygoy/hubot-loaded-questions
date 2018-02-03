@@ -93,12 +93,12 @@ module.exports = function(robot) {
         return LIGHT_INSULTS[i];
     };
 
-    this.getUsername = msg => {
-        return msg.message.user.profile.display_name;
+    this.getUsername = response => {
+        return response.message.user.profile.display_name;
     };
 
-    this.isPrivateMsg = msg => {
-        return msg.message.rawMessage.channel.is_im;
+    this.isPrivateMsg = response => {
+        return response.message.rawMessage.channel.is_im;
     };
 
     /**
@@ -181,7 +181,7 @@ module.exports = function(robot) {
    * get a string to print out current question, how long this question
    * has been active, and instructions for submitting answers
    *
-   * @param {object} msg - hubot msg object
+   * @param {object} response - hubot response object
    * @return {string} string
    */
     this.getCurQuestionMsg = () => {
@@ -206,10 +206,10 @@ module.exports = function(robot) {
    * names of users who submitted those answers, if any have been guessed
    * so far.
    *
-   * @param {object} msg - hubot msg object
+   * @param {object} response - hubot response object
    * @return {string}
    */
-    this.getAnswersMsg = msg => {
+    this.getAnswersMsg = response => {
         const numAnswers = Referee.getNumAnswers();
         let answersMessage = `There ${this.getPluralizedVerb(numAnswers, 'was', 'were')} ${this.getPluralizedNoun(numAnswers, 'answer', 's')} submitted for _'${Referee.lastQuestion()}'_:\n`;
 
@@ -249,11 +249,12 @@ module.exports = function(robot) {
 
     // Responses
 
-    robot.hear(/submit ?answer ((.|\s)+)/i, msg => {
-        if (this.isPrivateMsg(msg)) {
+    robot.hear(/submit ?answer ((.|\s)+)/i, response => {
+        debugger;
+        if (this.isPrivateMsg(response)) {
             if (Referee.roundIsInProgress()) {
-                const answer = msg.match[1];
-                const user = this.getUsername(msg);
+                const answer = response.match[1];
+                const user = this.getUsername(response);
                 const answers = Referee.answers();
 
                 if (answers.hasOwnProperty(user)) {
@@ -271,40 +272,41 @@ module.exports = function(robot) {
                     this.messageRoom(roomMessage);
                 }
 
-                msg.send('Got it. If you change your mind, submit your answer again and I\'ll update it.');
+                response.send('Got it. If you change your mind, submit your answer again and I\'ll update it.');
                 Stats.answered(user);
             } else {
-                msg.send(noCurrentQuestionMsg);
+                response.send(noCurrentQuestionMsg);
             }
         } else {
-            msg.send('Nah, you need to submit your answers in a private message with me. I\'ll pretend I didn\'t see that.');
+            response.send('Nah, you need to submit your answers in a private message with me. I\'ll pretend I didn\'t see that.');
         }
     });
 
-    robot.hear(/!loadquestions?/i, msg => {
+    robot.hear(/!loadquestions?/i, response => {
+        debugger;
         if (!Referee.roundIsInProgress()) {
             Referee.startNewRound(Questions);
             try {
-                this.setTopic(msg.message.room, Referee.currentQuestion());
+                this.setTopic(response.message.room, Referee.currentQuestion());
             } catch (err) {
                 console.log(err);
             }
             
             this.messageRoom(`*NEW ROUND STARTED!!!*\n\n${this.getCurQuestionMsg()}`);
         } else {
-            msg.send(`There is already a question loaded!\n\n${this.getCurQuestionMsg()}`);
+            response.send(`There is already a question loaded!\n\n${this.getCurQuestionMsg()}`);
         }
     });
 
-    robot.hear(/!printquestions?/i, msg => {
+    robot.hear(/!printquestions?/i, response => {
         if (Referee.roundIsInProgress()) {
-            msg.send(this.getCurQuestionMsg());
+            response.send(this.getCurQuestionMsg());
         } else {
-            msg.send(noCurrentQuestionMsg);
+            response.send(noCurrentQuestionMsg);
         }
     });
 
-    robot.hear(/^!skipquestions?/i, msg => {
+    robot.hear(/^!skipquestions?/i, response => {
         let message = '';
 
         if ((skipTimestamp != null) && ((new Date() - skipTimestamp / 1000) < 10)) {
@@ -314,7 +316,7 @@ module.exports = function(robot) {
         } else {
             skipTimestamp = null;
 
-            const username = this.getUsername(msg);
+            const username = this.getUsername(response);
             skipVotes.add(username);
 
             if (skipVotes.size < SKIPNUM) {
@@ -341,34 +343,34 @@ module.exports = function(robot) {
                 skipVotes = new Set([]);
                 skipTimestamp = new Date();
 
-                this.setTopic(msg.message.room, Referee.currentQuestion());
+                this.setTopic(response.message.room, Referee.currentQuestion());
                 message += `*NEW ROUND STARTED!!!*\n\n${this.getCurQuestionMsg()}`;
             }
         }
         this.messageRoom(message);
     });
 
-    robot.hear(/^!endquestions?/i, msg => {
+    robot.hear(/^!endquestions?/i, response => {
         if (Referee.roundIsInProgress()) {
             Referee.endRound();
             this.checkRecentQuestions();
 
-            msg.send(`*ROUND ENDED!!!*\n\n${this.getAnswersMsg()}`);
+            response.send(`*ROUND ENDED!!!*\n\n${this.getAnswersMsg()}`);
 
             if (timeout != null) {
                 clearTimeout(timeout);
                 timeout = null;
             }
         } else {
-            msg.send(noCurrentQuestionMsg);
+            response.send(noCurrentQuestionMsg);
         }
     });
 
-    robot.hear(/!printanswers?/i, msg => {
-        msg.send(this.getAnswersMsg());
+    robot.hear(/!printanswers?/i, response => {
+        response.send(this.getAnswersMsg());
     });
 
-    robot.hear(/^!(guess ?answer|ga) (\d+) (.*?)\s*$/i, msg => {
+    robot.hear(/^!(guess ?answer|ga) (\d+) (.*?)\s*$/i, response => {
         let message = '';
 
         if (Referee.roundIsInProgress()) {
@@ -377,9 +379,9 @@ module.exports = function(robot) {
         } else if (Referee.haveAllBeenGuessed()) {
             message = 'All answers have been guessed! To start a new round, say `!loadquestion`.';
         } else if (Referee.getNumAnswers() > 0) {
-            const answerNum = Number(msg.match[2]);
-            let user = msg.match[3];
-            const username = this.getUsername(msg);
+            const answerNum = Number(response.match[2]);
+            let user = response.match[3];
+            const username = this.getUsername(response);
 
             const answers = Referee.answers();
             const orderedAnswers = Referee.orderedAnswers();
@@ -389,7 +391,7 @@ module.exports = function(robot) {
             }
 
             if (username === user) {
-                msg.send('You can\'t guess your own answer, cheater!');
+                response.send('You can\'t guess your own answer, cheater!');
                 Stats.cheated(username);
                 return;
             }
@@ -404,7 +406,7 @@ module.exports = function(robot) {
 
                         if (Referee.haveAllBeenGuessed()) {
                             message += this.getAnswersMsg();
-                            this.setTopic(msg.message.room, 'Ready to start next round!');
+                            this.setTopic(response.message.room, 'Ready to start next round!');
                         }
                     } else {
                         message = 'Nope, guess again.';
@@ -428,11 +430,11 @@ module.exports = function(robot) {
         } else {
             message = 'Whoa jeez i\'m not sure how we got here.';
         }
-        msg.send(message);
+        response.send(message);
     });
 
-    robot.hear(/!lqstats ?(.*)?/i, msg => {
-        const user = msg.match[1];
+    robot.hear(/!lqstats ?(.*)?/i, response => {
+        const user = response.match[1];
         let message = '_Stats';
         const stats = Stats.loadStats();
 
@@ -453,6 +455,6 @@ module.exports = function(robot) {
             message += '_To find out stats about a specific player, say_ `!lqstats [username]`.';
         }
 
-        msg.send(message);
+        response.send(message);
     });
 };
