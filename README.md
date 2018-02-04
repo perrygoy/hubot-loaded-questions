@@ -81,7 +81,13 @@ Then add `hubot-loaded-questions` to the `external-scripts.json` file (you may n
 
 
 ## Issues
-If you find a bug, please let me know about it at https://github.com/perrygoy/hubot-loaded-questions/issues. This module was exclusively tested on Slack, so i'm not sure how it behaves on other chat clients.
+If you find a bug, please let me know about it at https://github.com/perrygoy/hubot-loaded-questions/issues. This module was exclusively tested on Slack, so I'm not sure how it behaves on other chat clients.
+
+## Tests
+After running `npm install`, the following testing scripts can be run:
+    `npm run test` - Runs jest tests
+    `npm run debugTest` - Runs jest tests in debug mode for node inspector. Make sure to add a debugger or two first!
+    `npm run clearTestCache` - Clears the jest cache for the occasional caching problem
 
 Thanks
 ------

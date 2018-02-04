@@ -187,7 +187,7 @@ module.exports = function(robot) {
     this.getCurQuestionMsg = () => {
         let curQuestionMsg = `The current question is: *'${Referee.currentQuestion()}'*\n`;
 
-        const timeSinceStart = Math.floor(Math.abs(new Date() - new Date(Referee.questionTimestamp())) / (60 * 1000));
+        const timeSinceStart = Math.floor(Math.abs(new Date() - Referee.questionTimestamp()) / (60 * 1000));
         if (timeSinceStart > 0) {
             curQuestionMsg += `The round started ~${this.getPluralizedNoun(timeSinceStart, 'minute', 's')} ago.\n\n`;
         }
@@ -250,13 +250,12 @@ module.exports = function(robot) {
     // Responses
 
     robot.hear(/submit ?answer ((.|\s)+)/i, response => {
-        debugger;
         if (this.isPrivateMsg(response)) {
             if (Referee.roundIsInProgress()) {
                 const answer = response.match[1];
                 const user = this.getUsername(response);
                 const answers = Referee.answers();
-
+                
                 if (answers.hasOwnProperty(user)) {
                     Referee.updateAnswer(user, answer);
                 } else {
@@ -283,7 +282,6 @@ module.exports = function(robot) {
     });
 
     robot.hear(/!loadquestions?/i, response => {
-        debugger;
         if (!Referee.roundIsInProgress()) {
             Referee.startNewRound(Questions);
             try {

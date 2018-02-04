@@ -182,7 +182,7 @@ module.exports = function(robot) {
    * @returns {Object[]} array
    **/
     this.getUnguessedUsers = () => {
-        const users = Game.answers.filter(user => !user.guessed);
+        const users = Object.keys(Game.answers).filter(user => !Game.answers[user].guessed);
 
         return shuffle(users);
     };
