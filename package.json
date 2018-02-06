@@ -42,8 +42,8 @@
         "<rootDir>/__test__/transforms/.+js"
     ],
     "transform": {
-        ".+hubot.+src.+robot.js$": "<rootDir>/__test__/transforms/hubot/robot.js",
-        ".+hubot-test-helper.+src.+index.js$": "<rootDir>/__test__/transforms/hubot-test-helper/index.js"
+        "hubot.src.robot.js$": "<rootDir>/__test__/transforms/hubot/robot.js",
+        "hubot-test-helper.src.index.js$": "<rootDir>/__test__/transforms/hubot-test-helper/index.js"
     },
     "transformIgnorePatterns": [
         "node_modules/(?!(hubot))"
