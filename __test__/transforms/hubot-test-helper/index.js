@@ -25,6 +25,12 @@ const TRANSFORMS = [
             sayPrivate: (userName, message, userParams) => this.receive(userName, message, userParams, true),
         `,
     },
+    // this transform gives the hubot-test-helper adapter a param
+    // to differentiate between public and private messages
+    {
+        INSERT_STRING: ' receive(userName, message, userParams',
+        CODE: ', isPrivate',
+    },
     // this transform gives the hubot-test-helper adapter the ability to
     // track the private messages sent to it with a similar signature to slack
     {
@@ -62,7 +68,7 @@ const TRANSFORMS = [
 ];
 
 module.exports = {
-    process(src, filename, config, options) {
+    process(src) {
         let newSrc = src;
 
         TRANSFORMS.forEach(TRANSFORM => {
