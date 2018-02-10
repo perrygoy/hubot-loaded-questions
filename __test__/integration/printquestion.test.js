@@ -49,7 +49,7 @@ describe('When a user types \'!printquestion\'', () => {
         test('...that contains the number of answers submitted', () => {
             expect(lqBotRoom.messages).toHaveLength(6);
             expect(lqBotRoom.messages[5]).toHaveLength(2);
-            expect(lqBotRoom.messages[5][1]).toEqual(expect.stringContaining('2'));
+            expect(lqBotRoom.messages[5][1]).toEqual(expect.stringContaining('2 answers'));
         });
     });
 });
