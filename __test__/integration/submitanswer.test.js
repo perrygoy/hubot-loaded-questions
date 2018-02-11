@@ -79,7 +79,7 @@ describe('When a user types \'submit answer\'', () => {
                 expect(lqBotRoom.messages[2][1]).toEqual(expect.stringContaining('Got an answer from someone! I now have 1 answer'));
                 await submitAnswerMock.sendPrivate('bobby', 'submit answer this is bobby\'s answer');
                 expect(lqBotRoom.messages).toHaveLength(4);
-                expect(lqBotRoom.messages[3][1]).toEqual(expect.stringContaining('2'));
+                expect(lqBotRoom.messages[3][1]).toEqual(expect.stringContaining('2 answers'));
             });
             test('Update the user\'s statistics', () => {
                 const {

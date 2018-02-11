@@ -23,6 +23,16 @@
     "name": "Perry Goy",
     "email": "perry.goy@gmail.com"
   },
+  "contributors": [
+      {
+        "name": "Perry Goy",
+        "email": "perry.goy@gmail.com"
+      },
+      {
+        "name": "Clayton Hottinger",
+        "email": "clayton.hottinger@gmail.com"
+      }
+  ],
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/perrygoy/hubot-loaded-questions/issues"
