@@ -83,14 +83,5 @@ Then add `hubot-loaded-questions` to the `external-scripts.json` file (you may n
 ## Issues
 If you find a bug, please let me know about it at https://github.com/perrygoy/hubot-loaded-questions/issues. This module was exclusively tested on Slack, so I'm not sure how it behaves on other chat clients.
 
-## Tests
-This module uses [hubot-test-helper](https://github.com/mtsmfm/hubot-test-helper), [Facebook's jest](https://facebook.github.io/jest/), and several jest transforms to properly mock the bot and slack's hubot adapter. 
-
-After running `npm install`, the following testing scripts can be run:
-* `npm run test` - Runs all tests in __test__ folder
-* `npm run debugTest` - Runs tests in debug mode for node inspector. Make sure to add a debugger to your code to set a break point!
-* `npm run clearTestCache` - Clears the jest cache for the occasional caching problems jest has.
-
-Thanks
 ------
 I've had a ton of fun creating this module and playing it with my friends, and i want it to be a great time for everyone. Thanks for taking the time to read this README, and i hope you have a great time playing Loaded Questions!
