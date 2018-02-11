@@ -81,8 +81,7 @@ Then add `hubot-loaded-questions` to the `external-scripts.json` file (you may n
 
 
 ## Issues
-If you find a bug, please let me know about it at https://github.com/perrygoy/hubot-loaded-questions/issues. This module was exclusively tested on Slack, so i'm not sure how it behaves on other chat clients.
+If you find a bug, please let me know about it at https://github.com/perrygoy/hubot-loaded-questions/issues. This module was exclusively tested on Slack, so I'm not sure how it behaves on other chat clients.
 
-Thanks
 ------
 I've had a ton of fun creating this module and playing it with my friends, and i want it to be a great time for everyone. Thanks for taking the time to read this README, and i hope you have a great time playing Loaded Questions!

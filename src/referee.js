@@ -2,18 +2,19 @@
 //   Referee module
 //   Loads and saves the game data for Loaded Questions, and keeps track of the rounds.
 
-var Game = {
-      'curQuestion': '',
-      'lastQuestion': '',
-      'questionTimestamp': null,
-      'answers': {},
-      'orderedAnswers': {},
-      'recentQuestions': [],
-    }
+let Game = {
+    curQuestion: '',
+    lastQuestion: '',
+    questionTimestamp: null,
+    answers: {},
+    orderedAnswers: {},
+    recentQuestions: [],
+};
 
 /**
  * Shuffles array in place. ES6 version
- * @param {Array} a items An array containing the items.
+ * @param {[]} a items An array containing the items.
+ * @returns {[]}
  */
 function shuffle(a) {
     for (let i = a.length - 1; i > 0; i--) {
@@ -25,184 +26,184 @@ function shuffle(a) {
 
 
 module.exports = function(robot) {
-
-  /**
+    /**
    * loads the game from the brain, if available, and returns a copy of
    * the current game state.
+   * @returns {Object}
    */
-  this.loadGame = function() {
-    Game = robot.brain.data.loadedQuestionsGame || Game;
+    this.loadGame = () => {
+        Game = robot.brain.data.loadedQuestionsGame || Game;
 
-    return Object.assign({}, Game);
-  }
+        return Object.assign({}, Game);
+    };
 
-  // Game info
+    // Game info
 
-  this.currentQuestion = function() {
-    return Game['curQuestion'];
-  }
+    this.currentQuestion = () => {
+        return Game.curQuestion;
+    };
 
-  this.lastQuestion = function() {
-    return Game['lastQuestion'];
-  }
+    this.lastQuestion = () => {
+        return Game.lastQuestion;
+    };
 
-  this.questionTimestamp = function() {
-    return Game['questionTimestamp'];
-  }
+    this.questionTimestamp = () => {
+        return Game.questionTimestamp;
+    };
 
-  this.orderedAnswers = function() {
-    if (Object.keys(Game['orderedAnswers']).length == 0) {
-      generateOrderedAnswers();
-    }
-    return Object.assign({}, Game['orderedAnswers']);;
-  }
+    this.orderedAnswers = () => {
+        if (Object.keys(Game.orderedAnswers).length === 0) {
+            this.generateOrderedAnswers();
+        }
+        return Object.assign({}, Game.orderedAnswers);
+    };
 
-  this.answers = function() {
-    return Object.assign({}, Game['answers']);;
-  }
+    this.answers = () => {
+        return Object.assign({}, Game.answers);
+    };
 
-  this.recentQuestions = function() {
-    return Game['recentQuestions'].slice();
-  }
+    this.recentQuestions = () => {
+        return Game.recentQuestions.slice();
+    };
 
-  this.roundIsInProgress = function() {
-    return Game['curQuestion'] != '';
-  }
+    this.roundIsInProgress = () => {
+        return Game.curQuestion !== '';
+    };
 
-  // Actions
+    // Actions
 
-  /**
+    /**
    * gets a new-ish question, by stripping out the already-asked questions
    * (if any) and getting a random question from the remaining list.
    *
-   * @return string
+   * @param {string[]} questions
+   * @return {string}
    */
-  this.getNewishQuestion = function(questions) {
-    if (Game['recentQuestions'].length == questions.length) {
-      Game['recentQuestions'] = [];
-      saveGame();
-    }
-    robot.logger.info("Loaded Questions: " + (questions.length - Game['recentQuestions'].length) + " new questions remaining.");
+    this.getNewishQuestion = questions => {
+        if (Game.recentQuestions.length === questions.length) {
+            Game.recentQuestions = [];
+            this.saveGame();
+        }
+        robot.logger.info(`Loaded Questions: ${questions.length - Game.recentQuestions.length} new questions remaining.`);
 
-    const nonAskedQs = questions.filter( q => Game['recentQuestions'].indexOf(q) < 0 );
-    const i = Math.floor(Math.random() * nonAskedQs.length);
+        const nonAskedQs = questions.filter(q => Game.recentQuestions.indexOf(q) < 0);
+        const i = Math.floor(Math.random() * nonAskedQs.length);
 
-    return nonAskedQs[i];
-  }
+        return nonAskedQs[i];
+    };
 
-  /**
+    /**
    * start a new round: get a new question, re-initialize all the round
    * data, set the topic, and save the game-state.
+   * @param {string[]} questions
    */
-  this.startNewRound = function(questions) {
-    const question = getNewishQuestion(questions);
+    this.startNewRound = questions => {
+        const question = this.getNewishQuestion(questions);
 
-    Game['curQuestion'] = question;
-    Game['questionTimestamp'] = new Date();
-    Game['answers'] = {};
-    Game['orderedAnswers'] = {};
-    Game['numQuestions']++;
+        Game.curQuestion = question;
+        Game.questionTimestamp = new Date();
+        Game.answers = {};
+        Game.orderedAnswers = {};
+        Game.numQuestions++;
 
-    saveGame();
-  }
+        this.saveGame();
+    };
 
-  this.updateAnswer = function(user, answer) {
-    Game['answers'][user]['answer'] = answer;
+    this.updateAnswer = (user, answer) => {
+        Game.answers[user].answer = answer;
 
-    saveGame();
-  }
+        this.saveGame();
+    };
 
-  this.saveAnswer = function(user, answer) {
-    Game['answers'][user] = { 'answer': answer, 'guessed': false };
+    this.saveAnswer = (user, answer) => {
+        Game.answers[user] = {
+            answer,
+            guessed: false,
+        };
 
-    saveGame();
-  }
+        this.saveGame();
+    };
 
-  this.answerFound = function(user, answerNum) {
-    Game['orderedAnswers'][answerNum]['guessed'] = true;
-    Game['answers'][user]['guessed'] = true;
+    this.answerFound = (user, answerNum) => {
+        Game.orderedAnswers[answerNum].guessed = true;
+        Game.answers[user].guessed = true;
 
-    saveGame();
-  }
+        this.saveGame();
+    };
 
-  /**
+    /**
    * gets the number of answers that have been submitted for this question
    *
-   * @return integer
+   * @returns {number} integer
    */
-  this.getNumAnswers = function () {
-    return Object.keys(Game['answers']).length;
-  }
+    this.getNumAnswers = () => {
+        return Object.keys(Game.answers).length;
+    };
 
-  /**
+    /**
    * generates ordered answers list
    */
-  this.generateOrderedAnswers = function() {
-    let users = [];
-    for (let user of Object.keys(Game['answers'])) {
-      const obj = Game['answers'][user];
-      obj['user'] = user;
-      obj['guessed'] = false;
-      users.push(obj);
-    }
+    this.generateOrderedAnswers = () => {
+        let users = [];
+        Object.keys(Game.answers).forEach(user => {
+            const obj = Game.answers[user];
+            obj.user = user;
+            obj.guessed = false;
+            users.push(obj);
+        });
 
-    users = shuffle(users);
-    for (let i = 1; i <= users.length; i++) {
-      Game['orderedAnswers'][i] = users[i - 1];
-    }
+        users = shuffle(users);
+        for (let i = 1; i <= users.length; i++) {
+            Game.orderedAnswers[i] = users[i - 1];
+        }
 
-    saveGame();
-  }
+        this.saveGame();
+    };
 
-  /**
+    /**
    * gets the number of answers that have been guessed correctly
    *
-   * @return integer
+   * @returns {number} integer
    */
-  this.getNumGuessed = function () {
-    let numGuessed = 0;
-    for (let user of Object.keys(Game['answers'])) {
-      if (Game['answers'][user]['guessed']) {
-        numGuessed++;
-      }
-    }
+    this.getNumGuessed = () => {
+        let numGuessed = 0;
+        Object.keys(Game.answers).forEach(user => {
+            if (Game.answers[user].guessed) {
+                numGuessed++;
+            }
+        });
 
-    return numGuessed;
-  }
+        return numGuessed;
+    };
 
-  /**
+    /**
    * gets the list of users who haven't been guessed yet.
    *
-   * @return array
+   * @returns {Object[]} array
    **/
-  this.getUnguessedUsers = function() {
-    const users = [];
-    for (let user of Object.keys(Game['answers'])) {
-      if (!Game['answers'][user]['guessed']) {
-        users.push(user)
-      }
-    }
+    this.getUnguessedUsers = () => {
+        const users = Object.keys(Game.answers).filter(user => !Game.answers[user].guessed);
 
-    return shuffle(users);
-  }
+        return shuffle(users);
+    };
 
-  this.haveAllBeenGuessed = function() {
-    return getNumGuessed() == getNumAnswers();
-  }
+    this.haveAllBeenGuessed = () => {
+        return this.getNumGuessed() === this.getNumAnswers();
+    };
 
-  this.endRound = function() {
-    Game['recentQuestions'].push(Game['curQuestion']);
+    this.endRound = () => {
+        Game.recentQuestions.push(Game.curQuestion);
 
-    Game['lastQuestion'] = Game['curQuestion'];
-    Game['curQuestion'] = '';
-    Game['questionTimestamp'] = null;
+        Game.lastQuestion = Game.curQuestion;
+        Game.curQuestion = '';
+        Game.questionTimestamp = null;
 
-    generateOrderedAnswers();
-    saveGame();
-  }
+        this.generateOrderedAnswers();
+        this.saveGame();
+    };
 
-  this.saveGame = function() {
-    robot.brain.data.loadedQuestionsGame = Game;
-    robot.brain.emit('save', robot.brain.data);
-  }
-}
+    this.saveGame = () => {
+        robot.brain.data.loadedQuestionsGame = Game;
+        robot.brain.emit('save', robot.brain.data);
+    };
+};
