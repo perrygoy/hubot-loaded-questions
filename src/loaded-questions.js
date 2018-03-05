@@ -58,15 +58,13 @@ module.exports = function(robot) {
 
     const Stats = new StatsMod(robot);
     const Referee = new RefMod(robot);
-    const Questions = QUESTIONS.splice();
+
+    // Load default questions, will be re-set later with custom questions
+    let Questions = QUESTIONS.slice();
 
     let timeout = null;
     let skipTimestamp = null;
     let skipVotes = new Set([]);
-
-    if (!process.env.HUBOT_LOADED_QUESTIONS_ROOM) {
-        robot.logger.info('Loaded Questions loaded, using default room #random. Set HUBOT_LOADED_QUESTIONS_ROOM to a channel name or ID to use a different room.');
-    }
 
     this.getPluralizedNoun = (num, str, pluralizer) => {
         let pluralizedString = '';
@@ -243,8 +241,13 @@ module.exports = function(robot) {
 
     // Initialization
 
+    if (!process.env.HUBOT_LOADED_QUESTIONS_ROOM) {
+        robot.logger.info('Loaded Questions loaded, using default room #random. Set HUBOT_LOADED_QUESTIONS_ROOM to a channel name or ID to use a different room.');
+    }
+
+    this.loadAllQuestions();
+
     robot.brain.on('connected', () => {
-        this.loadAllQuestions();
         robot.logger.debug(`Loaded Questions: ${Questions.length} Questions Loaded.`);
         robot.logger.debug(`Loaded Questions: Game loaded: ${JSON.stringify(Referee.loadGame(), null, 2)}`);
         robot.logger.debug(`Loaded Questions: Stats loaded: ${JSON.stringify(Stats.loadStats(), null, 2)}`);
