@@ -58,7 +58,7 @@ module.exports = function(robot) {
 
     const Stats = new StatsMod(robot);
     const Referee = new RefMod(robot);
-    const Questions = QUESTIONS.slice();
+    const Questions = QUESTIONS.splice();
 
     let timeout = null;
     let skipTimestamp = null;
@@ -67,7 +67,7 @@ module.exports = function(robot) {
     if (!process.env.HUBOT_LOADED_QUESTIONS_ROOM) {
         robot.logger.info('Loaded Questions loaded, using default room #random. Set HUBOT_LOADED_QUESTIONS_ROOM to a channel name or ID to use a different room.');
     }
- 
+
     this.getPluralizedNoun = (num, str, pluralizer) => {
         let pluralizedString = '';
         if (num === 1) {
@@ -154,8 +154,9 @@ module.exports = function(robot) {
    *
    * @return {string[]} array
    */
-    this.getAllQuestions = () => {
-        return QUESTIONS.slice().concat(this.loadExtraQuestions());
+    this.loadAllQuestions = () => {
+        Questions = QUESTIONS.slice().concat(this.loadExtraQuestions());
+        return Questions;
     };
 
     /**
@@ -243,6 +244,8 @@ module.exports = function(robot) {
     // Initialization
 
     robot.brain.on('connected', () => {
+        this.loadAllQuestions();
+        robot.logger.debug(`Loaded Questions: ${Questions.length} Questions Loaded.`);
         robot.logger.debug(`Loaded Questions: Game loaded: ${JSON.stringify(Referee.loadGame(), null, 2)}`);
         robot.logger.debug(`Loaded Questions: Stats loaded: ${JSON.stringify(Stats.loadStats(), null, 2)}`);
     });
@@ -255,7 +258,7 @@ module.exports = function(robot) {
                 const answer = response.match[1];
                 const user = this.getUsername(response);
                 const answers = Referee.answers();
-                
+
                 if (answers.hasOwnProperty(user)) {
                     Referee.updateAnswer(user, answer);
                 } else {
@@ -289,7 +292,7 @@ module.exports = function(robot) {
             } catch (err) {
                 console.log(err);
             }
-            
+
             this.messageRoom(`*NEW ROUND STARTED!!!*\n\n${this.getCurQuestionMsg()}`);
         } else {
             response.send(`There is already a question loaded!\n\n${this.getCurQuestionMsg()}`);
@@ -351,6 +354,7 @@ module.exports = function(robot) {
     robot.hear(/^!endquestions?/i, response => {
         if (Referee.roundIsInProgress()) {
             Referee.endRound();
+            Stats.questionAsked();
             this.checkRecentQuestions();
 
             response.send(`*ROUND ENDED!!!*\n\n${this.getAnswersMsg()}`);

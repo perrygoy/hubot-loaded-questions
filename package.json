@@ -1,6 +1,6 @@
 {
   "name": "hubot-loaded-questions",
-  "version": "1.0.7",
+  "version": "1.1.0",
   "description": "Play Loaded Questions, the game where guessing the answers gets you in just as much trouble as giving your own.",
   "main": "index.coffee",
   "scripts": {
@@ -24,14 +24,14 @@
     "email": "perry.goy@gmail.com"
   },
   "contributors": [
-      {
-        "name": "Perry Goy",
-        "email": "perry.goy@gmail.com"
-      },
-      {
-        "name": "Clayton Hottinger",
-        "email": "clayton.hottinger@gmail.com"
-      }
+    {
+      "name": "Perry Goy",
+      "email": "perry.goy@gmail.com"
+    },
+    {
+      "name": "Clayton Hottinger",
+      "email": "clayton.hottinger@gmail.com"
+    }
   ],
   "license": "ISC",
   "bugs": {
@@ -58,5 +58,8 @@
     "transformIgnorePatterns": [
       "node_modules/(?!(hubot))"
     ]
+  },
+  "dependencies": {
+    "npm": "^5.7.1"
   }
 }
