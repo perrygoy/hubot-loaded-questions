@@ -161,11 +161,18 @@ module.exports = function(robot) {
    * forces the end of the round, to be used with `setTimeout()`.
    */
     this.forceRoundOver = () => {
-        Referee.endRound();
-        this.checkRecentQuestions();
-
+        this.endRound();
         this.messageRoom(`*ROUND ENDED!!!* (due to timeout)\n\n${this.getAnswersMsg()}`);
     };
+
+     /**
+    * Ends the round, doing the checks and tallies to get ready for next time.
+    */
+    this.endRound = () => {
+        Referee.endRound();
+        Stats.questionAsked();
+        this.checkRecentQuestions();
+    }
 
     /**
    * checks if it's time to reset the Recent Questions list.
@@ -315,7 +322,7 @@ module.exports = function(robot) {
 
         if ((skipTimestamp != null) && ((new Date() - skipTimestamp / 1000) < 10)) {
             // We probably just skipped a question and this vote came a little late
-            message = 'Sorry, there\'s a 10 second cooldown to skipping questions, to prevent from skipping another one accidentally.\n\n';
+            message = 'Sorry, there\'s a 10 second cooldown to skipping questions to prevent from skipping another one accidentally.\n\n';
             message += `You can vote to skip again in ${(10 - (new Date() - skipTimestamp / 1000))} seconds.`;
         } else {
             skipTimestamp = null;
@@ -340,8 +347,7 @@ module.exports = function(robot) {
                     const i = Math.floor(Math.random() * quips.length);
                     message = `${quips[i]} _SKIPPED!_\n\n`;
 
-                    Referee.endRound();
-                    this.checkRecentQuestions();
+                    this.endRound()
                 }
                 Referee.startNewRound(Questions);
                 skipVotes = new Set([]);
@@ -356,9 +362,7 @@ module.exports = function(robot) {
 
     robot.hear(/^!endquestions?/i, response => {
         if (Referee.roundIsInProgress()) {
-            Referee.endRound();
-            Stats.questionAsked();
-            this.checkRecentQuestions();
+            this.endRound();
 
             response.send(`*ROUND ENDED!!!*\n\n${this.getAnswersMsg()}`);
 
