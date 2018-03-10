@@ -161,14 +161,14 @@ module.exports = function(robot) {
    * forces the end of the round, to be used with `setTimeout()`.
    */
     this.forceRoundOver = () => {
-        this.endRound();
+        this.endQuestion();
         this.messageRoom(`*ROUND ENDED!!!* (due to timeout)\n\n${this.getAnswersMsg()}`);
     };
 
      /**
     * Ends the round, doing the checks and tallies to get ready for next time.
     */
-    this.endRound = () => {
+    this.endQuestion = () => {
         Referee.endRound();
         Stats.questionAsked();
         this.checkRecentQuestions();
@@ -347,7 +347,7 @@ module.exports = function(robot) {
                     const i = Math.floor(Math.random() * quips.length);
                     message = `${quips[i]} _SKIPPED!_\n\n`;
 
-                    this.endRound()
+                    this.endQuestion()
                 }
                 Referee.startNewRound(Questions);
                 skipVotes = new Set([]);
@@ -362,7 +362,7 @@ module.exports = function(robot) {
 
     robot.hear(/^!endquestions?/i, response => {
         if (Referee.roundIsInProgress()) {
-            this.endRound();
+            this.endQuestion();
 
             response.send(`*ROUND ENDED!!!*\n\n${this.getAnswersMsg()}`);
 

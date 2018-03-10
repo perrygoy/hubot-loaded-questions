@@ -48,7 +48,7 @@ module.exports = function(robot) {
     };
 
     this.questionTimestamp = () => {
-        return Game.questionTimestamp;
+        return new Date(Game.questionTimestamp);
     };
 
     this.orderedAnswers = () => {
@@ -104,7 +104,6 @@ module.exports = function(robot) {
         Game.questionTimestamp = new Date();
         Game.answers = {};
         Game.orderedAnswers = {};
-        Game.numQuestions++;
 
         this.saveGame();
     };
