@@ -23,6 +23,7 @@
 //    HUBOT_LOADED_QUESTIONS_QUORUM - how many answers to wait for before triggering a countdown to end the round. Default is 5.
 //    HUBOT_LOADED_QUESTIONS_SKIPNUM - how many users must agree to skip a question before it is skipped. Default is 2.
 //    HUBOT_LOADED_QUESTIONS_TIMEOUT - how many minutes to wait during the countdown before the round ends. Default is 5.
+//    HUBOT_INCLUDE_RANDOM_ANSWER - whether or not to include a random answer from last round as hubot's answer.
 //
 // Commands:
 //   !loadquestion - (public only) starts a new question, if there isn't one currently.
@@ -92,11 +93,23 @@ module.exports = function(robot) {
     };
 
     this.getUsername = response => {
-        return response.message.user.profile.display_name;
+        try {
+            // Slack (and others?)
+            return response.message.user.profile.display_name;
+        } catch (err) {
+            // Discord
+            return response.message.user.name;
+        }
     };
 
     this.isPrivateMsg = response => {
-        return response.message.rawMessage.channel.is_im;
+        try {
+            // Slack (and others?)
+            return response.message.rawMessage.channel.is_im;
+        } catch (err) {
+            // Discord
+            return response.message.user.room == response.message.room;
+        }
     };
 
     /**
@@ -119,8 +132,14 @@ module.exports = function(robot) {
         try {
             robot.adapter.client.setTopic(ROOM, topic);
         } catch (err) {
-            robot.logger.warning(`HUBOT_LOADED_QUESTIONS_ROOM must be set to a channel ID to set the topic correctly. Guessing room ID is ${fallbackRoomId}`);
-            robot.adapter.client.setTopic(fallbackRoomId, topic);
+            try {
+                robot.adapter.client.setTopic(fallbackRoomId, topic);
+                robot.logger.warning(`HUBOT_LOADED_QUESTIONS_ROOM must be set to a channel ID to set the topic correctly. Guessing room ID is ${fallbackRoomId}`);
+            } catch (err) {
+                // the adapter in use must not support topic-setting.
+                robot.logger.info(`Unable to set topic, adapter doesn't seem to support it. Topic was '${topic}'`);
+            }
+
         }
     };
 
@@ -171,16 +190,7 @@ module.exports = function(robot) {
     this.endQuestion = () => {
         Referee.endRound();
         Stats.questionAsked();
-        this.checkRecentQuestions();
-    }
-
-    /**
-   * checks if it's time to reset the Recent Questions list.
-   */
-    this.checkRecentQuestions = () => {
-        if (Referee.recentQuestions().length == Questions.length) {
-            Referee.resetRecentQuestions();
-        }
+        Stats.updatePopularRound(Referee.getNumAnswers());
     };
 
     /**
@@ -250,7 +260,7 @@ module.exports = function(robot) {
 
     if (!process.env.HUBOT_LOADED_QUESTIONS_ROOM) {
         robot.logger.info('Loaded Questions loaded, using default room #random. Set HUBOT_LOADED_QUESTIONS_ROOM to a channel name or ID to use a different room.');
-    }
+    };
 
     this.loadAllQuestions();
 
@@ -450,16 +460,18 @@ module.exports = function(robot) {
         if (user) {
             const data = stats.usersData[user];
             message += ` for *${user}*_:\n\n`;
-            message += `>*Total Answers*: ${data.answers}\n`;
+            message += `>*Total Answers Given*: ${data.answers}\n`;
             message += `>*Total Guesses*: ${data.guesses}\n`;
             message += `>  - *Total Correct*: ${data.rights}\n`;
             message += `>  - *Total Incorrect*: ${data.wrongs}\n`;
             message += `>  - *Total Cheats*: ${data.cheats}`;
         } else {
             message += ' for Loaded Questions_:\n\n';
+            message += `>*Questions Loaded This Round*: ${Referee.recentQuestions.length}\n`;
             message += `>*Total Questions*: ${Questions.length}\n`;
             message += `>*Total Questions Loaded*: ${stats.numQuestions}\n`;
             message += `>*Total Answers Given*: ${stats.numAnswers}\n`;
+            message += `>*Most Popular Round*: ${stats.mostPopularRound} answers given\n`
             message += `>*Players*: ${Object.keys(stats.usersData).join(', ')}\n\n`;
             message += '_To find out stats about a specific player, say_ `!lqstats [username]`.';
         }
