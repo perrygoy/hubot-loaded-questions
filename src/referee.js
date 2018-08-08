@@ -2,13 +2,24 @@
 //   Referee module
 //   Loads and saves the game data for Loaded Questions, and keeps track of the rounds.
 
+const INCLUDE_RANDOM_ANSWER: process.env.HUBOT_INCLUDE_RANDOM_ANSWER || true
+
+let REPLACEMENT_STR = "{{}}";
 let Game = {
     curQuestion: '',
     lastQuestion: '',
     questionTimestamp: null,
+    lastRoundAnswers: [],
+    currentRoundAnswers: [],
     answers: {},
     orderedAnswers: {},
     recentQuestions: [],
+};
+
+// Helpers
+
+function randomInt(max_ind) {
+    return Math.floor(Math.random() * max_ind);
 };
 
 /**
@@ -18,11 +29,14 @@ let Game = {
  */
 function shuffle(a) {
     for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
+        const j = randomInt(i + 1);
         [a[i], a[j]] = [a[j], a[i]];
     }
     return a;
-}
+};
+
+
+// Module
 
 
 module.exports = function(robot) {
@@ -66,6 +80,12 @@ module.exports = function(robot) {
         return Game.recentQuestions.slice();
     };
 
+    this.resetRecentQuestions = () => {
+        Game.recentQuestions = [];
+        Game.lastRoundAnswers = Game.currentRoundAnswers.slice();
+        Game.currentRoundAnswers = [];
+    };
+
     this.roundIsInProgress = () => {
         return Game.curQuestion !== '';
     };
@@ -80,16 +100,33 @@ module.exports = function(robot) {
    * @return {string}
    */
     this.getNewishQuestion = questions => {
-        if (Game.recentQuestions.length === questions.length) {
-            Game.recentQuestions = [];
-            this.saveGame();
-        }
         robot.logger.info(`Loaded Questions: ${questions.length - Game.recentQuestions.length} new questions remaining.`);
 
         const nonAskedQs = questions.filter(q => Game.recentQuestions.indexOf(q) < 0);
-        const i = Math.floor(Math.random() * nonAskedQs.length);
+        if (nonAskedQs.length <= 0) {
+            this.resetRecentQuestions();
+            this.saveGame();
 
-        return nonAskedQs[i];
+            nonAskedQs = questions.filter(q => Game.recentQuestions.indexOf(q) < 0);
+        }
+
+        const i = randomInt(nonAskedQs.length);
+        let question = nonAskedQs[i];
+
+        Game.recentQuestions.push(nonAskedQs[i]);
+
+        // Handle the random-support questions
+        if (!(typeof question === 'string' || question instanceof String)) {
+            question = String(nonAskedQs[i].question);
+            const data = nonAskedQs[i].data.slice();
+
+            while (question.includes(REPLACEMENT_STR)) {
+                const j = randomInt(data.length);
+                question = question.replace(REPLACEMENT_STR, data[j]);
+            }
+        }
+
+        return question;
     };
 
     /**
@@ -143,6 +180,11 @@ module.exports = function(robot) {
    * generates ordered answers list
    */
     this.generateOrderedAnswers = () => {
+        const botAnswer = this.getBotAnswer(Game.lastRoundAnswers);
+        if (botAnswer !== null) {
+            this.saveAnswer(robot.name, botAnswer);
+        }
+
         let users = [];
         Object.keys(Game.answers).forEach(user => {
             const obj = Game.answers[user];
@@ -158,6 +200,25 @@ module.exports = function(robot) {
 
         this.saveGame();
     };
+
+     /**
+    * adds this question's answers to the current round answer list
+    */
+    this.addCurrentAnswers = (answerList) {
+        let currentAnswers = Game.currentRoundAnswers || [];
+
+        Game.currentRoundAnswers = [...currentAnswers, ...answerList];
+        this.saveGame();
+    };
+
+    this.getBotAnswer = (answerList) {
+        if (answerList === null || answerList.length == 0){
+            return null;
+        }
+
+        const i = randomInt(answerList.length);
+        return answerList[i],
+    }
 
     /**
    * gets the number of answers that have been guessed correctly
@@ -191,8 +252,6 @@ module.exports = function(robot) {
     };
 
     this.endRound = () => {
-        Game.recentQuestions.push(Game.curQuestion);
-
         Game.lastQuestion = Game.curQuestion;
         Game.curQuestion = '';
         Game.questionTimestamp = null;
