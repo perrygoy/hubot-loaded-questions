@@ -5,6 +5,7 @@
 let Stats = {
     numQuestions: 0,
     numAnswers: 0,
+    mostPopularRound: 0,
     usersData: {},
 };
 
@@ -75,5 +76,12 @@ module.exports = function(robot) {
     this.questionAsked = () => {
         Stats.numQuestions++;
         this.saveStats();
-    }
+    };
+
+    this.updatePopularRound = newRecord => {
+        if (Stats.mostPopularRound < newRecord) {
+            Stats.mostPopularRound = newRecord
+        } 
+        this.saveStats();
+    };
 };
