@@ -127,7 +127,6 @@
     "What is one thing you always wanted as a kid but never got?",
     "What is one time that your trust was betrayed?",
     "What is something you've changed your mind about?",
-    "What is the best advice you've ever received?",
     "What is the best hat?",
     "What is the best reason to sign up for karate classes?",
     "What is the best thing that happened yesterday?",
@@ -222,13 +221,13 @@
     "What would you do with a time machine?",
     "What would you like to accomplish over the next year?",
     "What would you name your first/next child?",
+    "What's a strange thing you've done while your brain was on autopilot?",
     "What's the best appetizer?",
     "What's the best thing you've read lately?",
     "What's the first thing you do when you walk in to work?",
     "What's the most comfortable way of laying on the floor?",
     "What's the name of your memoir?",
     "What's the name of your new hit TV show?",
-    "What's the weirdest thing you've done while your brain was on autopilot?",
     "What's the worst thing to hear your pilot say?",
     "What's your \"it's expensive but it's worth it\" product?",
     "What's your favorite card game?",
@@ -319,6 +318,10 @@
     {
         "question": "What is one of your favorite {{}}movies?",
         "data": ["sci-fi ", "comedy ", "drama ", "cartoon ", "horror ", "thriller ", "mystery ", "fantasy", ""]
+    },
+    {
+        "question": "What is some {{}} advice you've received?",
+        "data": ["good", "bad", "life"]
     },
     {
         "question": "What is the {{}} thing you own?",

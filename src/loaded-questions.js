@@ -95,7 +95,8 @@ module.exports = function(robot) {
     this.getUsername = response => {
         try {
             // Slack (and others?)
-            return response.message.user.profile.display_name;
+            const user = response.message.user;
+            return user.name || user.profile.display_name;
         } catch (err) {
             // Discord
             return response.message.user.name;
@@ -105,7 +106,8 @@ module.exports = function(robot) {
     this.isPrivateMsg = response => {
         try {
             // Slack (and others?)
-            return response.message.rawMessage.channel.is_im;
+            const channel = response.message.rawMessage.channel;
+            return channel.is_im || channel.id[0] == 'D';
         } catch (err) {
             // Discord
             return response.message.user.room == response.message.room;

@@ -80,8 +80,8 @@ module.exports = function(robot) {
 
     this.updatePopularRound = newRecord => {
         if (Stats.mostPopularRound < newRecord) {
-            Stats.mostPopularRound = newRecord
-        } 
+            Stats.mostPopularRound = newRecord;
+        }
         this.saveStats();
     };
 };

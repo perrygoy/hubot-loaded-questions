@@ -2,15 +2,15 @@
 //   Referee module
 //   Loads and saves the game data for Loaded Questions, and keeps track of the rounds.
 
-const INCLUDE_RANDOM_ANSWER: process.env.HUBOT_INCLUDE_RANDOM_ANSWER || true
+const INCLUDE_RANDOM_ANSWER = process.env.HUBOT_INCLUDE_RANDOM_ANSWER || true;
 
 let REPLACEMENT_STR = "{{}}";
 let Game = {
     curQuestion: '',
     lastQuestion: '',
     questionTimestamp: null,
-    lastRoundAnswers: [],
-    currentRoundAnswers: [],
+    lastCourAnswers: [],
+    currentCourAnswers: [],
     answers: {},
     orderedAnswers: {},
     recentQuestions: [],
@@ -82,8 +82,8 @@ module.exports = function(robot) {
 
     this.resetRecentQuestions = () => {
         Game.recentQuestions = [];
-        Game.lastRoundAnswers = Game.currentRoundAnswers.slice();
-        Game.currentRoundAnswers = [];
+        Game.lastCourAnswers = Game.currentCourAnswers.slice();
+        Game.currentCourAnswers = [];
     };
 
     this.roundIsInProgress = () => {
@@ -176,11 +176,40 @@ module.exports = function(robot) {
         return Object.keys(Game.answers).length;
     };
 
+    this.getAnswerStrings = () => {
+        return Game.answers.map(answerobj => answerobj.answer);
+    };
+
+     /**
+    * adds this question's answers to the current round answer list, to be
+    * used by the bot next round.
+    */
+    this.addCurrentAnswers = () => {
+        // backwards compatibility, since this is a new property
+        const currentAnswers = Game.currentCourAnswers || [];
+
+        Game.currentCourAnswers = [...currentAnswers, ...answerList];
+        this.saveGame();
+    };
+
+     /*
+    * gets a bot answer by selecting randomly from the provided answer list.
+    * The answer list will most likely be the last round's answers.
+    */
+    this.getBotAnswer = (answerList) => {
+        if (!answerList || answerList.length == 0){
+            return null;
+        }
+
+        const i = randomInt(answerList.length);
+        return answerList[i];
+    };
+
     /**
    * generates ordered answers list
    */
     this.generateOrderedAnswers = () => {
-        const botAnswer = this.getBotAnswer(Game.lastRoundAnswers);
+        const botAnswer = this.getBotAnswer(Game.lastCourAnswers);
         if (botAnswer !== null) {
             this.saveAnswer(robot.name, botAnswer);
         }
@@ -201,27 +230,8 @@ module.exports = function(robot) {
         this.saveGame();
     };
 
-     /**
-    * adds this question's answers to the current round answer list
-    */
-    this.addCurrentAnswers = (answerList) {
-        let currentAnswers = Game.currentRoundAnswers || [];
-
-        Game.currentRoundAnswers = [...currentAnswers, ...answerList];
-        this.saveGame();
-    };
-
-    this.getBotAnswer = (answerList) {
-        if (answerList === null || answerList.length == 0){
-            return null;
-        }
-
-        const i = randomInt(answerList.length);
-        return answerList[i],
-    }
-
     /**
-   * gets the number of answers that have been guessed correctly
+   * gets the number of answers that have been guessed correctly.
    *
    * @returns {number} integer
    */
@@ -256,6 +266,7 @@ module.exports = function(robot) {
         Game.curQuestion = '';
         Game.questionTimestamp = null;
 
+        this.addCurrentAnswers(this.getAnswerStrings());
         this.generateOrderedAnswers();
         this.saveGame();
     };
