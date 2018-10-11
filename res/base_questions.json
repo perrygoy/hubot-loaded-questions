@@ -1,5 +1,4 @@
 [
-    // Standard questions
     "911, what's your emergency?",
     "Approximately how many books have you read in the last year?",
     "Clear your mind. Focus on this question: What is the first happy memory that pops into your head?",
@@ -282,7 +281,6 @@
     "You have a cloning machine that can perfectly copy anything, but only once. What do you copy?",
     "Your home is on fire. All your loved ones and pets are out safely, and you have time to grab one last thing on your way out of the inferno. What do you grab?",
 
-    // Questions with random features
     {
         "question": "What do you consider the {{}} chore?",
         "data": ["worst", "easiest", "dirtiest", "most satisfying"]
