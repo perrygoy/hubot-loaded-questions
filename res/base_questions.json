@@ -362,7 +362,7 @@
     },
     {
         "question": "Excuse me, how do I get to the nearest {{}}?",
-        "data": ["gas station", "cinema", "bathroom", "point of interest", ]
+        "data": ["gas station", "cinema", "bathroom", "point of interest"]
     },
     {
         "question": "What is one moment in your life that you truly felt {{}}?",
