@@ -22,11 +22,11 @@ function randomInt(max_ind) {
     return Math.floor(Math.random() * max_ind);
 };
 
-/**
- * Shuffles array in place. ES6 version
- * @param {[]} a items An array containing the items.
- * @returns {[]}
- */
+ /**
+* Shuffles array in place. ES6 version
+* @param {[]} a items An array containing the items.
+* @returns {[]}
+*/
 function shuffle(a) {
     for (let i = a.length - 1; i > 0; i--) {
         const j = randomInt(i + 1);
@@ -176,15 +176,20 @@ module.exports = function(robot) {
         return Object.keys(Game.answers).length;
     };
 
+    /**
+   * gets the answers that were submitted
+   *
+   * @returns {string[]} answers
+   */
     this.getAnswerStrings = () => {
-        return Game.answers.map(answerobj => answerobj.answer);
+        return Game.answers.values().map(answerobj => answerobj.answer);
     };
 
-     /**
-    * adds this question's answers to the current round answer list, to be
-    * used by the bot next round.
-    */
-    this.addCurrentAnswers = () => {
+    /**
+   * adds this question's answers to the current round answer list, to be
+   * used by the bot next round.
+   */
+    this.addCurrentAnswers = (answerList) => {
         // backwards compatibility, since this is a new property
         const currentAnswers = Game.currentCourAnswers || [];
 
@@ -192,10 +197,10 @@ module.exports = function(robot) {
         this.saveGame();
     };
 
-     /*
-    * gets a bot answer by selecting randomly from the provided answer list.
-    * The answer list will most likely be the last round's answers.
-    */
+    /*
+   * gets a bot answer by selecting randomly from the provided answer list.
+   * The answer list will most likely be the last round's answers.
+   */
     this.getBotAnswer = (answerList) => {
         if (!answerList || answerList.length == 0){
             return null;
@@ -250,7 +255,7 @@ module.exports = function(robot) {
    * gets the list of users who haven't been guessed yet.
    *
    * @returns {Object[]} array
-   **/
+   */
     this.getUnguessedUsers = () => {
         const users = Object.keys(Game.answers).filter(user => !Game.answers[user].guessed);
 
