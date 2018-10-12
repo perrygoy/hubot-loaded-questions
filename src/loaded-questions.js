@@ -93,14 +93,7 @@ module.exports = function(robot) {
     };
 
     this.getUsername = response => {
-        try {
-            // Slack (and others?)
-            const user = response.message.user;
-            return user.name || user.profile.display_name;
-        } catch (err) {
-            // Discord
-            return response.message.user.name;
-        }
+        return response.message.user.name;
     };
 
     this.isPrivateMsg = response => {
