@@ -182,7 +182,7 @@ module.exports = function(robot) {
    * @returns {string[]} answers
    */
     this.getAnswerStrings = () => {
-        return Game.answers.values().map(answerobj => answerobj.answer);
+        return Object.values(Game.answers).map(answerobj => answerobj.answer);
     };
 
     /**
