@@ -79,7 +79,8 @@ module.exports = function(robot) {
     };
 
     this.updatePopularRound = newRecord => {
-        if (Stats.mostPopularRound < newRecord) {
+        const answers = Stats.mostPopularRound || 0;
+        if (answers < newRecord) {
             Stats.mostPopularRound = newRecord;
         }
         this.saveStats();

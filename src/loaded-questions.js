@@ -47,6 +47,7 @@ const StatsMod = require('./stats');
 const ROOM = process.env.HUBOT_LOADED_QUESTIONS_ROOM || '#random';
 const QUORUM = process.env.HUBOT_LOADED_QUESTIONS_QUORUM || 5;
 const SKIPNUM = process.env.HUBOT_LOADED_QUESTIONS_SKIPNUM || 2;
+const RESETNUM = process.env.HUBOT_LOADED_QUESTIONS_RESETNUM || 5;
 const TIMEOUT = process.env.HUBOT_LOADED_QUESTIONS_TIMEOUT || 5;
 
 const QUESTIONS = require('../res/base_questions.json');
@@ -66,6 +67,7 @@ module.exports = function(robot) {
     let timeout = null;
     let skipTimestamp = null;
     let skipVotes = new Set([]);
+    let resetVotes = new Set([]);
 
     this.getPluralizedNoun = (num, str, pluralizer) => {
         let pluralizedString = '';
@@ -93,7 +95,8 @@ module.exports = function(robot) {
     };
 
     this.getUsername = response => {
-        return response.message.user.name;
+        const user = response.message.user;
+        return user.profile.display_name || user.name;
     };
 
     this.isPrivateMsg = response => {
@@ -333,33 +336,54 @@ module.exports = function(robot) {
             skipTimestamp = null;
 
             const username = this.getUsername(response);
-            skipVotes.add(username);
-
-            if (skipVotes.size < SKIPNUM) {
-                message = `*Vote to skip added!* ${this.getPluralizedNoun(SKIPNUM - skipVotes.size, 'vote', 's')} more and we'll skip this one!`;
+            if (skipVotes.has(username)) {
+                message = `Nice try ${this.getRandomInsult()}, no voter fraud allowed. Each player only gets one vote!`;
             } else {
-                if (Referee.roundIsInProgress()) {
-                    const quips = [
-                        'Yeah, I didn\'t like it either.',
-                        'That question _is_ pretty played out.',
-                        'I already knew how everyone was going to answer.',
-                        'Aww but I had such a good answer! Oh well --',
-                        'Bang! Zoom!',
-                        'Who would even think to ask a question like that anyway?',
-                        'I\'ll see if I\'ve got a better one laying around here somewhere...',
-                        'You\'re right. I\'m sorry. You deserve better than that.',
-                    ];
-                    const i = Math.floor(Math.random() * quips.length);
-                    message = `${quips[i]} _SKIPPED!_\n\n`;
+                skipVotes.add(username);
 
-                    this.endQuestion()
+                if (skipVotes.size < SKIPNUM) {
+                    message = `*Vote to skip added!* ${this.getPluralizedNoun(SKIPNUM - skipVotes.size, 'vote', 's')} more and we'll skip this one!`;
+                } else {
+                    if (Referee.roundIsInProgress()) {
+                        const quips = [
+                            'Yeah, I didn\'t like it either.',
+                            'That question _is_ pretty played out.',
+                            'I already knew how everyone was going to answer.',
+                            'Aww but I had such a good answer! Oh well --',
+                            'Bang! Zoom!',
+                            'Who would even think to ask a question like that anyway?',
+                            'I\'ll see if I\'ve got a better one laying around here somewhere...',
+                            'You\'re right. I\'m sorry. You deserve better than that.',
+                        ];
+                        const i = Math.floor(Math.random() * quips.length);
+                        message = `${quips[i]} _SKIPPED!_\n\n`;
+
+                        this.endQuestion()
+                    }
+                    Referee.startNewRound(Questions);
+                    skipVotes = new Set([]);
+                    skipTimestamp = new Date();
+
+                    this.setTopic(response.message.room, Referee.currentQuestion());
+                    message += `*NEW ROUND STARTED!!!*\n\n${this.getCurQuestionMsg()}`;
                 }
-                Referee.startNewRound(Questions);
-                skipVotes = new Set([]);
-                skipTimestamp = new Date();
+            }
+        }
+        this.messageRoom(message);
+    });
 
-                this.setTopic(response.message.room, Referee.currentQuestion());
-                message += `*NEW ROUND STARTED!!!*\n\n${this.getCurQuestionMsg()}`;
+    robot.hear(/^!restartcour/i, response => {
+        const username = this.getUsername(response);
+        if (resetVotes.has(username)) {
+            message = `Nice try ${this.getRandomInsult()}, no voter fraud allowed. Each player only gets one vote!`;
+        } else {
+            resetVotes.add(username);
+
+            if (resetVotes.size < RESETNUM) {
+                message = `*Vote to reset the cour added!* ${this.getPluralizedNoun(RESETNUM - resetVotes.size, 'vote', 's')} more and we'll bring back all the asked questions!`;
+            } else {
+                Referee.resetRecentQuestions();
+                message = `*COUR RESET!* All questions are back in play and the bot answer pool has been updated!`;
             }
         }
         this.messageRoom(message);
@@ -462,9 +486,9 @@ module.exports = function(robot) {
             message += `>  - *Total Cheats*: ${data.cheats}`;
         } else {
             message += ' for Loaded Questions_:\n\n';
-            message += `>*Questions Loaded This Round*: ${Referee.recentQuestions.length}\n`;
             message += `>*Total Questions*: ${Questions.length}\n`;
             message += `>*Total Questions Loaded*: ${stats.numQuestions}\n`;
+            message += `>*Questions Loaded This Cour*: ${Referee.recentQuestions().length}\n`;
             message += `>*Total Answers Given*: ${stats.numAnswers}\n`;
             message += `>*Most Popular Round*: ${stats.mostPopularRound} answers given\n`
             message += `>*Players*: ${Object.keys(stats.usersData).join(', ')}\n\n`;
