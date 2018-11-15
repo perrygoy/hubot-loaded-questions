@@ -96,7 +96,11 @@ module.exports = function(robot) {
 
     this.getUsername = response => {
         const user = response.message.user;
-        return user.profile.display_name || user.name;
+	if (user.profile) {
+            return user.profile.display_name;
+        } else {
+            return user.name;
+        }
     };
 
     this.isPrivateMsg = response => {
