@@ -97,7 +97,7 @@ module.exports = function(robot) {
     this.getUsername = response => {
         const user = response.message.user;
 	if (user.profile) {
-            return user.profile.display_name;
+            return user.profile.display_name || user.name;
         } else {
             return user.name;
         }
