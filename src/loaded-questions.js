@@ -23,7 +23,7 @@
 //    HUBOT_LOADED_QUESTIONS_QUORUM - how many answers to wait for before triggering a countdown to end the round. Default is 5.
 //    HUBOT_LOADED_QUESTIONS_SKIPNUM - how many users must agree to skip a question before it is skipped. Default is 2.
 //    HUBOT_LOADED_QUESTIONS_TIMEOUT - how many minutes to wait during the countdown before the round ends. Default is 5.
-//    HUBOT_INCLUDE_RANDOM_ANSWER - whether or not to include a random answer from last round as hubot's answer.
+//    HUBOT_INCLUDE_RANDOM_ANSWER - whether or not to include a random answer from last round as hubot's answer. 0 or 1, default is 1 (includes random answer).
 //
 // Commands:
 //   !loadquestion - (public only) starts a new question, if there isn't one currently.
@@ -82,7 +82,7 @@ module.exports = function(robot) {
     };
 
     this.getPluralizedVerb = (num, singleVerb, pluralVerb) => {
-        if (num == 1) {
+        if (num === 1) {
             return singleVerb;
         } else {
             return pluralVerb;
@@ -96,7 +96,7 @@ module.exports = function(robot) {
 
     this.getUsername = response => {
         const user = response.message.user;
-	if (user.profile) {
+        if (user.profile) {
             return user.profile.display_name || user.name;
         } else {
             return user.name;
@@ -104,14 +104,7 @@ module.exports = function(robot) {
     };
 
     this.isPrivateMsg = response => {
-        try {
-            // Slack (and others?)
-            const channel = response.message.rawMessage.channel;
-            return channel.is_im || channel.id[0] == 'D';
-        } catch (err) {
-            // Discord
-            return response.message.user.room == response.message.room;
-        }
+        return response.envelope.room === response.envelope.user.name;
     };
 
     /**
@@ -141,7 +134,6 @@ module.exports = function(robot) {
                 // the adapter in use must not support topic-setting.
                 robot.logger.info(`Unable to set topic, adapter doesn't seem to support it. Topic was '${topic}'`);
             }
-
         }
     };
 
@@ -227,7 +219,7 @@ module.exports = function(robot) {
    * @param {object} response - hubot response object
    * @return {string}
    */
-    this.getAnswersMsg = response => {
+    this.getAnswersMsg = () => {
         const numAnswers = Referee.getNumAnswers();
         let answersMessage = `There ${this.getPluralizedVerb(numAnswers, 'was', 'were')} ${this.getPluralizedNoun(numAnswers, 'answer', 's')} submitted for _'${Referee.lastQuestion()}'_:\n`;
 
@@ -378,6 +370,7 @@ module.exports = function(robot) {
 
     robot.hear(/^!restartcour/i, response => {
         const username = this.getUsername(response);
+        let message = '';
         if (resetVotes.has(username)) {
             message = `Nice try ${this.getRandomInsult()}, no voter fraud allowed. Each player only gets one vote!`;
         } else {
@@ -494,7 +487,7 @@ module.exports = function(robot) {
             message += `>*Total Questions Loaded*: ${stats.numQuestions}\n`;
             message += `>*Questions Loaded This Cour*: ${Referee.recentQuestions().length}\n`;
             message += `>*Total Answers Given*: ${stats.numAnswers}\n`;
-            message += `>*Most Popular Round*: ${stats.mostPopularRound} answers given\n`
+            message += `>*Most Popular Round*: ${stats.mostPopularRound} answers given\n`;
             message += `>*Players*: ${Object.keys(stats.usersData).join(', ')}\n\n`;
             message += '_To find out stats about a specific player, say_ `!lqstats [username]`.';
         }

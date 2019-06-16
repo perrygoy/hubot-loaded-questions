@@ -2,9 +2,9 @@
 //   Referee module
 //   Loads and saves the game data for Loaded Questions, and keeps track of the rounds.
 
-const INCLUDE_RANDOM_ANSWER = process.env.HUBOT_INCLUDE_RANDOM_ANSWER || true;
+const INCLUDE_RANDOM_ANSWER = process.env.HUBOT_INCLUDE_RANDOM_ANSWER || 1;
 
-let REPLACEMENT_STR = "{{}}";
+const REPLACEMENT_STR = "{{}}";
 let Game = {
     curQuestion: '',
     lastQuestion: '',
@@ -18,8 +18,8 @@ let Game = {
 
 // Helpers
 
-function randomInt(max_ind) {
-    return Math.floor(Math.random() * max_ind);
+function randomInt(maxInd) {
+    return Math.floor(Math.random() * maxInd);
 };
 
  /**
@@ -102,7 +102,7 @@ module.exports = function(robot) {
     this.getNewishQuestion = questions => {
         robot.logger.info(`Loaded Questions: ${questions.length - Game.recentQuestions.length} new questions remaining.`);
 
-        const nonAskedQs = questions.filter(q => Game.recentQuestions.indexOf(q) < 0);
+        let nonAskedQs = questions.filter(q => Game.recentQuestions.indexOf(q) < 0);
         if (nonAskedQs.length <= 0) {
             this.resetRecentQuestions();
             this.saveGame();
@@ -188,8 +188,10 @@ module.exports = function(robot) {
     /**
    * adds this question's answers to the current round answer list, to be
    * used by the bot next round.
+   *
+   * @param {string[]} answerList
    */
-    this.addCurrentAnswers = (answerList) => {
+    this.addCurrentAnswers = answerList => {
         // backwards compatibility, since this is a new property
         const currentAnswers = Game.currentCourAnswers || [];
 
@@ -200,9 +202,11 @@ module.exports = function(robot) {
     /*
    * gets a bot answer by selecting randomly from the provided answer list.
    * The answer list will most likely be the last round's answers.
+   *
+   * @param {string[]} answerList
    */
-    this.getBotAnswer = (answerList) => {
-        if (!answerList || answerList.length == 0){
+    this.getBotAnswer = answerList => {
+        if (!answerList || answerList.length === 0) {
             return null;
         }
 
@@ -215,7 +219,7 @@ module.exports = function(robot) {
    */
     this.generateOrderedAnswers = () => {
         const botAnswer = this.getBotAnswer(Game.lastCourAnswers);
-        if (botAnswer !== null) {
+        if (botAnswer !== null && INCLUDE_RANDOM_ANSWER) {
             this.saveAnswer(robot.name, botAnswer);
         }
 
