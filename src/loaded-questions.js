@@ -67,7 +67,7 @@ module.exports = function(robot) {
     let timeout = null;
     let skipTimestamp = null;
     let skipVotes = new Set([]);
-    let resetVotes = new Set([]);
+    let restartVotes = new Set([]);
 
     this.getPluralizedNoun = (num, str, pluralizer) => {
         let pluralizedString = '';
@@ -101,10 +101,6 @@ module.exports = function(robot) {
         } else {
             return user.name;
         }
-    };
-
-    this.isPrivateMsg = response => {
-        return response.envelope.room === response.envelope.user.name;
     };
 
     /**
@@ -267,34 +263,30 @@ module.exports = function(robot) {
     // Responses
 
     robot.hear(/submit ?answer ((.|\s)+)/i, response => {
-        if (this.isPrivateMsg(response)) {
-            if (Referee.roundIsInProgress()) {
-                const answer = response.match[1];
-                const user = this.getUsername(response);
-                const answers = Referee.answers();
+        if (Referee.roundIsInProgress()) {
+            const answer = response.match[1];
+            const user = this.getUsername(response);
+            const answers = Referee.answers();
 
-                if (answers.hasOwnProperty(user)) {
-                    Referee.updateAnswer(user, answer);
-                } else {
-                    Referee.saveAnswer(user, answer);
-                    const numAnswers = Referee.getNumAnswers();
-
-                    let roomMessage = `Got an answer from someone! I now have ${this.getPluralizedNoun(numAnswers, 'answer', 's')}.`;
-
-                    if (numAnswers === QUORUM) {
-                        roomMessage += `\n_QUORUM REACHED!_ This round will end in ${TIMEOUT} minutes.`;
-                        timeout = setTimeout(() => this.forceRoundOver(), TIMEOUT * 60 * 1000);
-                    }
-                    this.messageRoom(roomMessage);
-                }
-
-                response.send('Got it. If you change your mind, submit your answer again and I\'ll update it.');
-                Stats.answered(user);
+            if (answers.hasOwnProperty(user)) {
+                Referee.updateAnswer(user, answer);
             } else {
-                response.send(noCurrentQuestionMsg);
+                Referee.saveAnswer(user, answer);
+                const numAnswers = Referee.getNumAnswers();
+
+                let roomMessage = `Got an answer from someone! I now have ${this.getPluralizedNoun(numAnswers, 'answer', 's')}.`;
+
+                if (numAnswers === QUORUM) {
+                    roomMessage += `\n_QUORUM REACHED!_ This round will end in ${TIMEOUT} minutes.`;
+                    timeout = setTimeout(() => this.forceRoundOver(), TIMEOUT * 60 * 1000);
+                }
+                this.messageRoom(roomMessage);
             }
+
+            response.send('Got it. If you change your mind, submit your answer again and I\'ll update it.');
+            Stats.answered(user);
         } else {
-            response.send('Nah, you need to submit your answers in a private message with me. I\'ll pretend I didn\'t see that.');
+            response.send(noCurrentQuestionMsg);
         }
     });
 
@@ -371,16 +363,17 @@ module.exports = function(robot) {
     robot.hear(/^!restartcour/i, response => {
         const username = this.getUsername(response);
         let message = '';
-        if (resetVotes.has(username)) {
+        if (restartVotes.has(username)) {
             message = `Nice try ${this.getRandomInsult()}, no voter fraud allowed. Each player only gets one vote!`;
         } else {
-            resetVotes.add(username);
+            restartVotes.add(username);
 
-            if (resetVotes.size < RESETNUM) {
-                message = `*Vote to reset the cour added!* ${this.getPluralizedNoun(RESETNUM - resetVotes.size, 'vote', 's')} more and we'll bring back all the asked questions!`;
+            if (restartVotes.size < RESETNUM) {
+                message = `*Vote to reset the cour added!* ${this.getPluralizedNoun(RESETNUM - restartVotes.size, 'vote', 's')} more and we'll bring back all the asked questions!`;
             } else {
                 Referee.resetRecentQuestions();
-                message = `*COUR RESET!* All questions are back in play and the bot answer pool has been updated!`;
+                restartVotes = new Set([]);
+                message = '*COUR RESET!* All questions are back in play and the bot answer pool has been updated!';
             }
         }
         this.messageRoom(message);
