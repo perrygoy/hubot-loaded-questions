@@ -394,7 +394,7 @@ module.exports = function(robot) {
         }
     });
 
-    robot.hear(/!(printanswers|pa)?/i, response => {
+    robot.hear(/^!(printanswers?|pa)/i, response => {
         response.send(this.getAnswersMsg());
     });
 
