@@ -66,6 +66,7 @@ module.exports = function(robot) {
 
     let timeout = null;
     let skipTimestamp = null;
+    let curGuesses = {};
     let skipVotes = new Set([]);
     let restartVotes = new Set([]);
 
@@ -174,9 +175,9 @@ module.exports = function(robot) {
         this.messageRoom(`*ROUND ENDED!!!* (due to timeout)\n\n${this.getAnswersMsg()}`);
     };
 
-     /**
-    * Ends the round, doing the checks and tallies to get ready for next time.
-    */
+    /**
+   * Ends the round, doing the checks and tallies to get ready for next time.
+   */
     this.endQuestion = () => {
         Referee.endRound();
         Stats.questionAsked();
@@ -290,7 +291,7 @@ module.exports = function(robot) {
         }
     });
 
-    robot.hear(/!loadquestions?/i, response => {
+    robot.hear(/(!loadquestions?|lq)$/i, response => {
         if (!Referee.roundIsInProgress()) {
             Referee.startNewRound(Questions);
             try {
@@ -305,7 +306,7 @@ module.exports = function(robot) {
         }
     });
 
-    robot.hear(/!printquestions?/i, response => {
+    robot.hear(/!(printquestions?|pq)$/i, response => {
         if (Referee.roundIsInProgress()) {
             response.send(this.getCurQuestionMsg());
         } else {
@@ -346,7 +347,7 @@ module.exports = function(robot) {
                         const i = Math.floor(Math.random() * quips.length);
                         message = `${quips[i]} _SKIPPED!_\n\n`;
 
-                        this.endQuestion()
+                        this.endQuestion();
                     }
                     Referee.startNewRound(Questions);
                     skipVotes = new Set([]);
@@ -394,7 +395,7 @@ module.exports = function(robot) {
         }
     });
 
-    robot.hear(/^!(printanswers?|pa)/i, response => {
+    robot.hear(/^!(printanswers?|pa)$/i, response => {
         response.send(this.getAnswersMsg());
     });
 
