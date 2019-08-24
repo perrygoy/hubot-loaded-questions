@@ -26,14 +26,15 @@
 //    HUBOT_INCLUDE_RANDOM_ANSWER - whether or not to include a random answer from last round as hubot's answer. 0 or 1, default is 1 (includes random answer).
 //
 // Commands:
-//   !loadquestion - (public only) starts a new question, if there isn't one currently.
-//   !printquestion - (public or pm) prints the current question.
-//   !skipquestion - (public only) votes to skip the current question and load a new one.
-//   !endquestion - (public only) ends the round of questioning and displays the answers.
-//   !printanswers - (public or pm) prints the answers that were given during the round.
-//   !guessanswer [number] [user] - (public only) guess that answer `number` was submitted by `user`. You can shortcut this command with `!ga`
-//   submit answer [answer] - (pm only) submits your answer to the question.
-//   !lqstats [username] - (public or pm) shows some stats about the game. Optionally include a username to see stats for that specific user.
+//   !loadquestion - starts a new question, if there isn't one currently. Short command: !lq
+//   !printquestion - prints the current question. Short command: !pq
+//   !skipquestion - votes to skip the current question and load a new one.
+//   !endquestion - ends the round of questioning and displays the answers.
+//   !printanswers - prints the answers that were given during the round. Short command: !pa
+//   !guessanswer [number] [user] - guess that answer `number` was submitted by `user`. You can shortcut this command with `!ga`
+//   !printguesses - prints the guesses that each user has submitted so far. Short command: !pg
+//   submit answer [answer] - submits your answer to the question.
+//   !lqstats [username] - shows some stats about the game. Optionally include a username to see stats for that specific user.
 //
 // Author:
 //   Perry Goy https://github.com/perrygoy
@@ -194,7 +195,9 @@ module.exports = function(robot) {
     this.getCurQuestionMsg = () => {
         let curQuestionMsg = `The current question is: *'${Referee.currentQuestion()}'*\n`;
 
-        const timeSinceStart = Math.floor(Math.abs(new Date() - Referee.questionTimestamp()) / (60 * 1000));
+        const timeSinceStart = Math.floor(
+            Math.abs(new Date() - Referee.questionTimestamp()) / (60 * 1000)
+        );
         if (timeSinceStart > 0) {
             curQuestionMsg += `The round started ~${this.getPluralizedNoun(timeSinceStart, 'minute', 's')} ago.\n\n`;
         }
@@ -245,6 +248,23 @@ module.exports = function(robot) {
             answersMessage += this.getCurQuestionMsg();
         }
         return answersMessage;
+    };
+
+    this.getGuessesMsg = () => {
+        const players = Object.keys(curGuesses);
+        let message = '';
+        if (players.length > 0) {
+            players.forEach(player => {
+                message += `${player}:\n${curGuesses[player].map(guess => `    ${guess[0]}: ${guess[1]}`).join('\n')}.`;
+            });
+        } else {
+            if (Referee.roundIsInProgress()) {
+                message = 'The question isn\'t over yet! To end the question early, say `!endquestion`.';
+            } else {
+                message = 'No players have guessed yet! To guess who submitted an answer, say `!guessanswer [number] [username]`.';
+            }
+        }
+        return message;
     };
 
     // Initialization
@@ -299,6 +319,7 @@ module.exports = function(robot) {
             } catch (err) {
                 console.log(err);
             }
+            curGuesses = {};
 
             this.messageRoom(`*NEW ROUND STARTED!!!*\n\n${this.getCurQuestionMsg()}`);
         } else {
@@ -399,6 +420,10 @@ module.exports = function(robot) {
         response.send(this.getAnswersMsg());
     });
 
+    robot.hear(/^!(printguesses|pg)$/i, response => {
+        response.send(this.getGuessesMsg());
+    });
+
     robot.hear(/^!(guess ?answer|ga) (\d+) (.*?)\s*$/i, response => {
         let message = '';
 
@@ -410,7 +435,7 @@ module.exports = function(robot) {
         } else if (Referee.getNumAnswers() > 0) {
             const answerNum = Number(response.match[2]);
             let user = response.match[3];
-            const username = this.getUsername(response);
+            const guesser = this.getUsername(response);
 
             const answers = Referee.answers();
             const orderedAnswers = Referee.orderedAnswers();
@@ -419,9 +444,14 @@ module.exports = function(robot) {
                 user = user.substr(1);
             }
 
-            if (username === user) {
+            if (!curGuesses.hasOwnProperty(guesser)) {
+                curGuesses[guesser] = [];
+            }
+            curGuesses[guesser].push([user, answerNum]);
+
+            if (guesser === user) {
                 response.send('You can\'t guess your own answer, cheater!');
-                Stats.cheated(username);
+                Stats.cheated(guesser);
                 return;
             }
 
@@ -431,7 +461,7 @@ module.exports = function(robot) {
                         Referee.answerFound(user, answerNum);
                         message = `You got it!! '${answers[user].answer}' was submitted by ${user}.\n\n`;
 
-                        Stats.correct(username);
+                        Stats.correct(guesser);
 
                         if (Referee.haveAllBeenGuessed()) {
                             message += this.getAnswersMsg();
@@ -439,20 +469,20 @@ module.exports = function(robot) {
                         }
                     } else {
                         message = 'Nope, guess again.';
-                        Stats.wrong(username);
+                        Stats.wrong(guesser);
                     }
                 } else {
                     if (answers[user].guessed) {
                         message = `That user\'s answer was already found, you ${this.getRandomInsult()}!\n\n`;
-                        Stats.wrong(username);
+                        Stats.wrong(guesser);
                     } else {
                         message = `That answer number was already correctly guessed, you ${this.getRandomInsult()}!\n\n`;
-                        Stats.wrong(username);
+                        Stats.wrong(guesser);
                     }
                 }
             } else {
                 message = 'That user didn\'t submit an answer to this question. :cold_sweat:';
-                Stats.wrong(username);
+                Stats.wrong(guesser);
             }
         } else if (Referee.getNumAnswers() === 0) {
             message = 'There were no answers for the previous round! Sorry about that :\\';
