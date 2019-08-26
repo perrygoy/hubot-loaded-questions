@@ -255,7 +255,7 @@ module.exports = function(robot) {
         let message = '';
         if (answerNums.length > 0) {
             answerNums.forEach(number => {
-                message += `\n*${number}:*${[...curGuesses[number]].join(', ')}.`;
+                message += `\n*${number}:* ${[...curGuesses[number]].join(', ')}.`;
             });
         } else {
             if (Referee.roundIsInProgress()) {
@@ -444,16 +444,16 @@ module.exports = function(robot) {
                 user = user.substr(1);
             }
 
-            if (!curGuesses.hasOwnProperty(answerNum)) {
-                curGuesses[answerNum] = new Set();
-            }
-            curGuesses[answerNum].add(user);
-
             if (guesser === user) {
                 response.send('You can\'t guess your own answer, cheater!');
                 Stats.cheated(guesser);
                 return;
             }
+
+            if (!curGuesses.hasOwnProperty(answerNum)) {
+                curGuesses[answerNum] = new Set();
+            }
+            curGuesses[answerNum].add(user);
 
             if (answers.hasOwnProperty(user)) {
                 if (!orderedAnswers[answerNum].guessed && !answers[user].guessed) {
@@ -461,6 +461,7 @@ module.exports = function(robot) {
                         Referee.answerFound(user, answerNum);
                         message = `You got it!! '${answers[user].answer}' was submitted by ${user}.\n\n`;
 
+                        delete curGuesses[answerNum];
                         Stats.correct(guesser);
 
                         if (Referee.haveAllBeenGuessed()) {
