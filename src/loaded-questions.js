@@ -261,7 +261,7 @@ module.exports = function(robot) {
             if (Referee.roundIsInProgress()) {
                 message = 'The question isn\'t over yet! To end the question early, say `!endquestion`.';
             } else {
-                message = 'No players have guessed yet! To guess who submitted an answer, say `!guessanswer [number] [username]`.';
+                message = 'There currently aren\'t any wrong guesses. To try your luck, say `!guessanswer [number] [username]`.';
             }
         }
         return message;

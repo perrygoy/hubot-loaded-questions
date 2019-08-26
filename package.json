@@ -1,6 +1,6 @@
 {
   "name": "hubot-loaded-questions",
-  "version": "2.2.3",
+  "version": "2.2.4",
   "description": "Play Loaded Questions, the game where guessing the answers gets you in just as much trouble as giving your own.",
   "main": "index.coffee",
   "scripts": {
