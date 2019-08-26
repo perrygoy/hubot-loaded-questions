@@ -255,7 +255,7 @@ module.exports = function(robot) {
         let message = '';
         if (players.length > 0) {
             players.forEach(player => {
-                message += `${player}:\n${curGuesses[player].map(guess => `    ${guess[0]}: ${guess[1]}`).join('\n')}.`;
+                message += `\n*${player}:*\n${curGuesses[player].map(guess => `    ${guess[0]}: ${guess[1]}`).join('\n')}.`;
             });
         } else {
             if (Referee.roundIsInProgress()) {
