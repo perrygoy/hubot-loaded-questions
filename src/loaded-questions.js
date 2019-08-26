@@ -251,11 +251,11 @@ module.exports = function(robot) {
     };
 
     this.getGuessesMsg = () => {
-        const players = Object.keys(curGuesses);
+        const answerNums = Object.keys(curGuesses);
         let message = '';
-        if (players.length > 0) {
-            players.forEach(player => {
-                message += `\n*${player}:*\n${curGuesses[player].map(guess => `    ${guess[0]}: ${guess[1]}`).join('\n')}.`;
+        if (answerNums.length > 0) {
+            answerNums.forEach(number => {
+                message += `\n*${number}:*${[...curGuesses[number]].join(', ')}.`;
             });
         } else {
             if (Referee.roundIsInProgress()) {
@@ -444,10 +444,10 @@ module.exports = function(robot) {
                 user = user.substr(1);
             }
 
-            if (!curGuesses.hasOwnProperty(guesser)) {
-                curGuesses[guesser] = [];
+            if (!curGuesses.hasOwnProperty(answerNum)) {
+                curGuesses[answerNum] = new Set();
             }
-            curGuesses[guesser].push([user, answerNum]);
+            curGuesses[answerNum].add(user);
 
             if (guesser === user) {
                 response.send('You can\'t guess your own answer, cheater!');
