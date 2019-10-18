@@ -102,21 +102,28 @@ module.exports = function(robot) {
     this.getNewishQuestion = questions => {
         robot.logger.info(`Loaded Questions: ${questions.length - Game.recentQuestions.length} new questions remaining.`);
 
-        let nonAskedQs = questions.filter(q => Game.recentQuestions.indexOf(q) < 0);
+        let nonAskedQs = questions.filter(q => {
+            let question = '';
+            if (!(typeof q === 'string' || q instanceof String)) {
+                question = q.question;
+            } else {
+                question = q;
+            }
+            return Game.recentQuestions.indexOf(question) < 0;
+        });
+
         if (nonAskedQs.length <= 0) {
             this.resetRecentQuestions();
             this.saveGame();
 
-            nonAskedQs = questions.filter(q => Game.recentQuestions.indexOf(q) < 0);
+            nonAskedQs = questions;
         }
 
         const i = randomInt(nonAskedQs.length);
         let question = nonAskedQs[i];
 
-        Game.recentQuestions.push(nonAskedQs[i]);
-
-        // Handle the random-support questions
         if (!(typeof question === 'string' || question instanceof String)) {
+            Game.recentQuestions.push(question.question);
             question = String(nonAskedQs[i].question);
             const data = nonAskedQs[i].data.slice();
 
@@ -124,6 +131,8 @@ module.exports = function(robot) {
                 const j = randomInt(data.length);
                 question = question.replace(REPLACEMENT_STR, data[j]);
             }
+        } else {
+            Game.recentQuestions.push(question);
         }
 
         return question;
